@@ -1,0 +1,32 @@
+# Auto-generated config file. Re-generate with ./configure
+
+# ngdevkit-toolkit common tools
+M68KAR=@ngar@
+M68KAS=@ngas@
+M68KGCC=@nggcc@
+M68KLD=@ngld@
+M68KOBJCOPY=@ngobjcopy@
+M68KRANLIB=@ngranlib@
+Z80SDAR=@ngsdar@
+Z80SDAS=@ngsdas@
+Z80SDCC=@ngsdcc@
+Z80SDLD=@ngsdld@
+Z80SDOBJCOPY=@ngsdobjcopy@
+Z80SDRANLIB=@ngsdranlib@
+
+# ngdevkit location and common flags
+NGDKBINDIR=@ngdkbindir@
+NGDKSHAREDIR=@ngdksharedir@
+NULLSOUNDDIR=$(NGDKSHAREDIR)
+NULLBIOSDIR=$(NGDKSHAREDIR)
+PALTOOL=@ngdkbindir@/paltool.py
+TILETOOL=@ngdkbindir@/tiletool.py
+
+# additional dependencies
+CONVERT=@convert@
+PYTHON=@PYTHON@
+ZIP=@zip@
+GNGEO=@gngeo@
+
+NGCFLAGS=`pkg-config --cflags ngdevkit`
+NGLIBS=`pkg-config --libs ngdevkit`
