@@ -1,0 +1,23 @@
+# Object files
+*.o
+*.elf
+*.ihx
+*.rel
+
+# Libraries
+*.a
+*.so
+
+# autoconf's cache
+autom4te.cache
+aclocal.m4
+configure
+config.*
+
+# Config
+Makefile.config
+
+# Editors tmp
+*~
+\#*#
+.#*
