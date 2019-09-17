@@ -24,7 +24,7 @@ TILETOOL=@ngdkbindir@/tiletool.py
 
 # additional dependencies
 CONVERT=@convert@
-PYTHON=@PYTHON@
+PYTHON=@python@
 ZIP=@zip@
 GNGEO=@gngeo@
 

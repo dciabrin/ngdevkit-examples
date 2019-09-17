@@ -40,7 +40,17 @@ AC_SUBST([ngdkbindir],`pkg-config --variable=bindir ngdevkit`)
 AC_SUBST([ngdksharedir],`pkg-config --variable=sharedir ngdevkit`)
 
 # additional dependencies
-AM_PATH_PYTHON([3.1])
+AC_PATH_PROGS([python], [python3 python], [no])
+if test x"$python" = x"no"; then
+  AC_MSG_ERROR([no python detected.])
+fi
+AC_MSG_CHECKING([whether detected python is at least python3])
+[pyver=`$python -c 'import sys; print(sys.version_info[0])'`]
+if test $pyver -ge 3; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_ERROR([python major version too old (detected: $pyver, required: 3)])
+fi
 AC_PATH_PROG([zip], [zip])
 AC_PATH_PROG([convert], [convert])
 AC_PATH_PROG([gngeo], [gngeo])
