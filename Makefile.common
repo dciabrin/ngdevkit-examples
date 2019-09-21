@@ -26,7 +26,8 @@ VROM=rom/202-v1.v1
 CROM1=rom/202-c1.c1
 CROM2=rom/202-c2.c2
 CROM=$(CROM1) $(CROM2)
-CART=rom/puzzledp.zip
+GAMEROM=puzzledp
+CART=rom/$(GAMEROM).zip
 BIOS=rom/neogeo.zip
 
 cart: $(CART)
@@ -69,38 +70,46 @@ ASSETS=../assets
 define export_path
 $(eval
 ifeq ($(shell uname -s), Darwin)
-$(1): export DYLD_LIBRARY_PATH=$(LOCALDIR)/lib:$(DYLD_LIBRARY_PATH)
+$(1): export DYLD_LIBRARY_PATH=$(NGLIBDIR):$(DYLD_LIBRARY_PATH)
 else
-$(1): export LD_LIBRARY_PATH=$(LOCALDIR)/lib:$(LD_LIBRARY_PATH)
+$(1): export LD_LIBRARY_PATH=$(NGLIBDIR):$(LD_LIBRARY_PATH)
 endif
 )
 endef
 
+
 # Emulator targets
 #
-ifeq ($(strip $(SDL2_DLL)),)
+# ifeq ($(strip $(SDL2_DLL)),)
 # regular case: pass the rompath to the emulator
-$(call export_path,gngeo)
-gngeo:
-	$(GNGEO) -b glsl --scale 3 --no-resize --shaderpath=$(LOCALDIR)/../toolchain/qcrt-glsl --shader qcrt-flat.glslp -i rom puzzledp
-
-$(call export_path,gngeo-fullscreen)
-gngeo-fullscreen:
-	$(GNGEO) -b glsl --fullscreen --scale 5 --no-resize --shaderpath=$(LOCALDIR)/../toolchain/qcrt-glsl --shader qcrt-flat.glslp -i rom puzzledp
-
-else
-# MinGW: copy ROMs to the gngeo dir
-ifneq ($(strip $(GLEW_BIN_PATH)),)
-SHADEROPTS=-b glsl --shader qcrt-flat.glslp
+ifeq ($(GNGEO_GLSL), yes)
+SHADEROPTS=-b glsl
+ifneq ($(GNGEO_SHADER_PATH),)
+SHADEROPTS+= --shaderpath="$(GNGEO_SHADER_PATH)"
+endif
+ifneq ($(GNGEO_DEFAULT_SHADER),)
+SHADEROPTS+= --shader="$(GNGEO_DEFAULT_SHADER)"
+endif
 else
 SHADEROPTS=
 endif
+
+$(call export_path,gngeo)
 gngeo:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --scale 3 --no-resize puzzledp)
+	$(GNGEO) $(SHADEROPTS) --scale 3 --no-resize -i rom $(GAMEROM)
 
+$(call export_path,gngeo-fullscreen)
 gngeo-fullscreen:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize puzzledp)
+	$(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize -i rom $(GAMEROM)
 
-endif
+# else
+# # MinGW: copy ROMs to the gngeo dir
+# gngeo:
+# 	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --scale 3 --no-resize puzzledp)
+
+# gngeo-fullscreen:
+# 	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize puzzledp)
+
+# endif
 
 .PHONY: gngeo gngeo-fullscreen

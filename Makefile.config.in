@@ -30,3 +30,9 @@ GNGEO=@gngeo@
 
 NGCFLAGS=`pkg-config --cflags ngdevkit`
 NGLIBS=`pkg-config --libs ngdevkit`
+NGLIBDIR=`pkg-config --variable=libdir ngdevkit`
+
+# GnGeo config
+GNGEO_GLSL=@GNGEO_GLSL@
+GNGEO_SHADER_PATH=@GNGEO_SHADER_PATH@
+GNGEO_DEFAULT_SHADER=@GNGEO_DEFAULT_SHADER@

@@ -53,7 +53,44 @@ else
 fi
 AC_PATH_PROG([zip], [zip])
 AC_PATH_PROG([convert], [convert])
-AC_PATH_PROG([gngeo], [gngeo])
+AC_PATH_PROG([gngeo], [ngdevkit-gngeo])
+
+if test x"$gngeo" != x""; then
+  AC_MSG_CHECKING([whether ngdevkit-gngeo is built with GLSL shader blitter])
+  $gngeo -b help | grep -q -w '^glsl'
+  if test $? = 0; then
+    AC_MSG_RESULT([yes])
+    GNGEO_GLSL=yes
+  else
+    GNGEO_GLSL=no
+    AC_MSG_RESULT([no])
+  fi
+fi
+AC_SUBST([GNGEO_GLSL])
+
+if test x"$GNGEO_GLSL" = x"yes"; then
+  AC_MSG_CHECKING([for GLSL shader path])
+  shader_path=`$gngeo -b glsl --shader=noop | sed -ne 's%.*GLSL preset \(.*\)/noop$%\1%p'`
+  if test -d "$shader_path"; then
+    AC_MSG_RESULT([$shader_path])
+    GNGEO_SHADER_PATH=$shader_path
+  else
+    AC_MSG_RESULT([not found])
+  fi
+fi
+AC_SUBST([GNGEO_SHADER_PATH])
+
+if test -n "$GNGEO_SHADER_PATH"; then
+  AC_MSG_CHECKING([which default shader to use in ngdevkit-gngeo])
+  if test -f "$shader_path/qcrt-flat.glslp"; then
+    GNGEO_DEFAULT_SHADER=qcrt-flat.glslp
+  else
+    GNGEO_DEFAULT_SHADER=noop.glslp
+  fi
+  AC_MSG_RESULT([$GNGEO_DEFAULT_SHADER])
+fi
+AC_SUBST([GNGEO_DEFAULT_SHADER])
+
 
 AC_CONFIG_FILES([
  Makefile.config
