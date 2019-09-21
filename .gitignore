@@ -17,6 +17,15 @@ config.*
 # Config
 Makefile.config
 
+# generated build files
+*.c1
+*.c2
+*.pal
+rom
+assets/*.bmp
+assets/*.png
+sprites
+
 # Editors tmp
 *~
 \#*#
