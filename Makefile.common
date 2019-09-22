@@ -84,11 +84,11 @@ endef
 # regular case: pass the rompath to the emulator
 ifeq ($(GNGEO_GLSL), yes)
 SHADEROPTS=-b glsl
-ifneq ($(GNGEO_SHADER_PATH),)
-SHADEROPTS+= --shaderpath="$(GNGEO_SHADER_PATH)"
+ifneq ($(SHADER_PATH),)
+SHADEROPTS+= --shaderpath="$(SHADER_PATH)"
 endif
-ifneq ($(GNGEO_DEFAULT_SHADER),)
-SHADEROPTS+= --shader="$(GNGEO_DEFAULT_SHADER)"
+ifneq ($(SHADER),)
+SHADEROPTS+= --shader="$(SHADER)"
 endif
 else
 SHADEROPTS=

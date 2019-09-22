@@ -69,27 +69,43 @@ fi
 AC_SUBST([GNGEO_GLSL])
 
 if test x"$GNGEO_GLSL" = x"yes"; then
-  AC_MSG_CHECKING([for GLSL shader path])
-  shader_path=`$gngeo -b glsl --shader=noop | sed -ne 's%.*GLSL preset \(.*\)/noop$%\1%p'`
-  if test -d "$shader_path"; then
-    AC_MSG_RESULT([$shader_path])
+AC_SUBST([GNGEO_SHADER_PATH])
+
+if test x"$GNGEO_GLSL" = x"yes"; then
+  AC_MSG_CHECKING([ngdevkit-gngeo GLSL shader path])
+  gngeo_shader_path=`$gngeo -b glsl --shader=noop | sed -ne 's%.*GLSL preset \(.*\)/noop$%\1%p'`
+  if test -d "$gngeo_shader_path"; then
+    AC_MSG_RESULT([$gngeo_shader_path])
     GNGEO_SHADER_PATH=$shader_path
   else
     AC_MSG_RESULT([not found])
   fi
+
+  AC_MSG_CHECKING([whether the GLSL shaders directory is available])
+    if test -d "$PWD/shaders"; then
+      AC_MSG_RESULT([$PWD/shaders])
+      GLSL_SHADER_PATH=$PWD/shaders
+    else
+      AC_MSG_RESULT([not found. git submodule not checked out])
+    fi
+  fi
 fi
 AC_SUBST([GNGEO_SHADER_PATH])
+AC_SUBST([GLSL_SHADER_PATH])
 
-if test -n "$GNGEO_SHADER_PATH"; then
+if test -n "$GLSL_SHADER_PATH"; then
   AC_MSG_CHECKING([which default shader to use in ngdevkit-gngeo])
-  if test -f "$shader_path/qcrt-flat.glslp"; then
-    GNGEO_DEFAULT_SHADER=qcrt-flat.glslp
+  if test -f "$GLSL_SHADER_PATH/qcrt-flat.glslp"; then
+    SHADER_PATH=$GLSL_SHADER_PATH
+    SHADER=qcrt-flat.glslp
   else
-    GNGEO_DEFAULT_SHADER=noop.glslp
+    SHADER_PATH=$GNGEO_SHADER_PATH
+    SHADER=noop.glslp
   fi
-  AC_MSG_RESULT([$GNGEO_DEFAULT_SHADER])
+  AC_MSG_RESULT([$SHADER_PATH/$SHADER])
 fi
-AC_SUBST([GNGEO_DEFAULT_SHADER])
+AC_SUBST([SHADER_PATH])
+AC_SUBST([SHADER])
 
 
 AC_CONFIG_FILES([
