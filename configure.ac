@@ -16,6 +16,15 @@
 
 AC_INIT([ngdevkit-examples], [0.1])
 
+dnl
+dnl MinGW-specific options
+dnl
+AC_ARG_ENABLE([mingw],
+	      AS_HELP_STRING([--enable-mingw], [Build Win10-native versions of emudbg and gngeo]),
+	      AS_IF([test "x$enable_mingw" = xyes], [ENABLE_MINGW="yes"], [ENABLE_MINGW="no"]),
+              [ENABLE_MINGW="no"])
+AC_SUBST([EXTERNAL_MINGW])
+
 # ngdevkit-toolkit and ngdevkit can be installed in
 # two different location, so search for executable
 # in two steps
@@ -53,7 +62,13 @@ else
 fi
 AC_PATH_PROG([zip], [zip])
 AC_PATH_PROG([convert], [convert])
-AC_PATH_PROG([gngeo], [ngdevkit-gngeo])
+
+if test x"$ENABLE_MINGW" = x"yes"; then
+gngeo_name=ngdevkit-gngeo.exe
+else
+gngeo_name=ngdevkit-gngeo
+fi
+AC_PATH_PROG([gngeo], [$gngeo_name])
 
 if test x"$gngeo" != x""; then
   AC_MSG_CHECKING([whether ngdevkit-gngeo is built with GLSL shader blitter])
