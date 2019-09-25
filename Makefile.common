@@ -80,12 +80,13 @@ endef
 
 # Emulator targets
 #
-# ifeq ($(strip $(SDL2_DLL)),)
 # regular case: pass the rompath to the emulator
 ifeq ($(GNGEO_GLSL), yes)
 SHADEROPTS=-b glsl
+ifneq ($(ENABLE_MINGW),yes)
 ifneq ($(SHADER_PATH),)
 SHADEROPTS+= --shaderpath="$(SHADER_PATH)"
+endif
 endif
 ifneq ($(SHADER),)
 SHADEROPTS+= --shader="$(SHADER)"
@@ -94,6 +95,7 @@ else
 SHADEROPTS=
 endif
 
+ifneq ($(ENABLE_MINGW),yes)
 $(call export_path,gngeo)
 gngeo:
 	$(GNGEO) $(SHADEROPTS) --scale 3 --no-resize -i rom $(GAMEROM)
@@ -102,14 +104,26 @@ $(call export_path,gngeo-fullscreen)
 gngeo-fullscreen:
 	$(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize -i rom $(GAMEROM)
 
-# else
-# # MinGW: copy ROMs to the gngeo dir
-# gngeo:
-# 	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --scale 3 --no-resize puzzledp)
+else
+# MinGW: GnGeo is a native app, so instead of passing path to the
+# Linux filesystem, we copy the ROM in the GnGeo directory
+# we also copy any shader config that might be in use
 
-# gngeo-fullscreen:
-# 	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize puzzledp)
+ifneq ($(SHADER),)
+ifneq ($(SHADER),noop.glslp)
+ifneq ($(GLSL_SHADER_PATH),)
+$(GNGEO_INSTALL_PATH)/shaders/$(SHADER): $(GLSL_SHADER_PATH)
+	$(RSYNC) -a $</ $(GNGEO_INSTALL_PATH)/shaders/
+endif
+endif
+endif
 
-# endif
+gngeo:
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --scale 3 --no-resize puzzledp)
+
+gngeo-fullscreen:
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize puzzledp)
+
+endif
 
 .PHONY: gngeo gngeo-fullscreen

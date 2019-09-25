@@ -23,7 +23,7 @@ AC_ARG_ENABLE([mingw],
 	      AS_HELP_STRING([--enable-mingw], [Build Win10-native versions of emudbg and gngeo]),
 	      AS_IF([test "x$enable_mingw" = xyes], [ENABLE_MINGW="yes"], [ENABLE_MINGW="no"]),
               [ENABLE_MINGW="no"])
-AC_SUBST([EXTERNAL_MINGW])
+AC_SUBST([ENABLE_MINGW])
 
 # ngdevkit-toolkit and ngdevkit can be installed in
 # two different location, so search for executable
@@ -62,17 +62,41 @@ else
 fi
 AC_PATH_PROG([zip], [zip])
 AC_PATH_PROG([convert], [convert])
+AC_PATH_PROG([rsync], [rsync])
 
 if test x"$ENABLE_MINGW" = x"yes"; then
 gngeo_name=ngdevkit-gngeo.exe
 else
 gngeo_name=ngdevkit-gngeo
 fi
+
 AC_PATH_PROG([gngeo], [$gngeo_name])
 
+if test x"$ENABLE_MINGW" = x"yes"; then
+  GNGEO_ABS_PREFIX="`dirname $gngeo`/"
+  GNGEO_PRE="cd $GNGEO_ABS_PREFIX &&"
+  GNGEO_POST="; cat gngeo_log.txt"
+else
+  GNGEO_ABS_PREFIX=""
+  GNGEO_PRE=""
+  GNGEO_POST=""
+fi
+
 if test x"$gngeo" != x""; then
+  if test x"$ENABLE_MINGW" = x"yes"; then
+    AC_MSG_CHECKING([ngdevkit-gngeo install path])
+    gngeo_install_path=`dirname $gngeo`
+    if test -d "$gngeo_install_path"; then
+      GNGEO_INSTALL_PATH=$gngeo_install_path
+      AC_MSG_RESULT([$GNGEO_INSTALL_PATH])
+    else
+      AC_MSG_ERROR([not found])
+    fi
+    AC_SUBST([GNGEO_INSTALL_PATH])
+  fi
+
   AC_MSG_CHECKING([whether ngdevkit-gngeo is built with GLSL shader blitter])
-  $gngeo -b help | grep -q -w '^glsl'
+  (eval $GNGEO_PRE $gngeo -b help $GNGEO_POST) | grep -q -w '^glsl'
   if test $? = 0; then
     AC_MSG_RESULT([yes])
     GNGEO_GLSL=yes
@@ -88,10 +112,11 @@ AC_SUBST([GNGEO_SHADER_PATH])
 
 if test x"$GNGEO_GLSL" = x"yes"; then
   AC_MSG_CHECKING([ngdevkit-gngeo GLSL shader path])
-  gngeo_shader_path=`$gngeo -b glsl --shader=noop | sed -ne 's%.*GLSL preset \(.*\)/noop$%\1%p'`
-  if test -d "$gngeo_shader_path"; then
+  gngeo_shader_path=`(eval $GNGEO_PRE $gngeo -b glsl --shader=noop.glslp forcefail $GNGEO_POST) | sed -ne 's%.*GLSL preset \(.*\)/noop\.glslp.*%\1%p'`
+  dnl MinGW generates self-contained builds, so all paths are relative
+  if test -n "$gngeo_shader_path" && test -d "${GNGEO_ABS_PREFIX}$gngeo_shader_path"; then
     AC_MSG_RESULT([$gngeo_shader_path])
-    GNGEO_SHADER_PATH=$shader_path
+    GNGEO_SHADER_PATH=$gngeo_shader_path
   else
     AC_MSG_RESULT([not found])
   fi
@@ -108,17 +133,15 @@ fi
 AC_SUBST([GNGEO_SHADER_PATH])
 AC_SUBST([GLSL_SHADER_PATH])
 
-if test -n "$GLSL_SHADER_PATH"; then
-  AC_MSG_CHECKING([which default shader to use in ngdevkit-gngeo])
-  if test -f "$GLSL_SHADER_PATH/qcrt-flat.glslp"; then
-    SHADER_PATH=$GLSL_SHADER_PATH
-    SHADER=qcrt-flat.glslp
-  else
-    SHADER_PATH=$GNGEO_SHADER_PATH
-    SHADER=noop.glslp
-  fi
-  AC_MSG_RESULT([$SHADER_PATH/$SHADER])
+AC_MSG_CHECKING([which default shader to use in ngdevkit-gngeo])
+if test -n "$GLSL_SHADER_PATH" && test -f "$GLSL_SHADER_PATH/qcrt-flat.glslp"; then
+  SHADER_PATH=$GLSL_SHADER_PATH
+  SHADER=qcrt-flat.glslp
+else
+  SHADER_PATH=$GNGEO_SHADER_PATH
+  SHADER=noop.glslp
 fi
+AC_MSG_RESULT([$SHADER_PATH/$SHADER])
 AC_SUBST([SHADER_PATH])
 AC_SUBST([SHADER])
 

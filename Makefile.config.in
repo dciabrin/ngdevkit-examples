@@ -26,6 +26,7 @@ TILETOOL=@ngdkbindir@/tiletool.py
 CONVERT=@convert@
 PYTHON=@python@
 ZIP=@zip@
+RSYNC=@rsync@
 GNGEO=@gngeo@
 
 NGCFLAGS=`pkg-config --cflags ngdevkit`
@@ -41,3 +42,4 @@ SHADER=@SHADER@
 
 # OS-specific
 ENABLE_MINGW=@ENABLE_MINGW@
+GNGEO_INSTALL_PATH=@GNGEO_INSTALL_PATH@
