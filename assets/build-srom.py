@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# Copyright (c) 2018 Damien Ciabrini
+#!/usr/bin/env python3
+# Copyright (c) 2018-2019 Damien Ciabrini
 # This file is part of ngdevkit
 #
 # ngdevkit is free software: you can redistribute it and/or modify
