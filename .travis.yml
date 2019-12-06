@@ -1,0 +1,29 @@
+language: c
+dist: bionic
+matrix:
+  include:
+    - name: "Linux"
+      os: linux
+      dist: bionic
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:dciabrin/ngdevkit'
+          packages:
+            - ngdevkit
+            - ngdevkit-gngeo
+            - python3
+            # bionic doesn't have python3-pygame, so use pip
+            - python3-pip
+            - zip
+            - pkg-config
+            - imagemagick
+
+before_script:
+  - pip3 install pygame
+
+script:
+  - git submodule update --init --recursive
+  - autoreconf -iv
+  - ./configure
+  - make
