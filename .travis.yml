@@ -9,18 +9,14 @@ matrix:
         apt:
           sources:
             - sourceline: 'ppa:dciabrin/ngdevkit'
+            # bionic lacks python3-pygame, so install it from this ppa
+            - sourceline: 'ppa:thopiekar/pygame'
           packages:
             - ngdevkit
             - ngdevkit-gngeo
-            - python3
-            # bionic doesn't have python3-pygame, so use pip
-            - python3-pip
             - zip
             - pkg-config
             - imagemagick
-
-before_script:
-  - pip3 install pygame
 
 script:
   - git submodule update --init --recursive
