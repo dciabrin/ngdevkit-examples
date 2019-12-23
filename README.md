@@ -27,6 +27,8 @@ system. If you run Ubuntu or Debian, you can install debian
 packages of ngdevkit and GnGeo with:
 
     add-apt-repository -y ppa:dciabrin/ngdevkit
+    # if you're running Bionic, add the following ppa for PyGame
+    # add-apt-repository ppa:thopiekar/pygame
     apt-get update
     apt-get install -y ngdevkit ngdevkit-gngeo
     apt-get install -y pkg-config autoconf automake zip imagemagick
