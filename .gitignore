@@ -25,6 +25,8 @@ rom
 assets/*.bmp
 assets/*.png
 sprites
+04-palette/*.bin
+04-palette/*.gif
 
 # Editors tmp
 *~
