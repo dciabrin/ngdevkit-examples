@@ -17,7 +17,8 @@
 EXAMPLES = \
 01-helloworld \
 02-sprite \
-03-sprite-animation
+03-sprite-animation \
+04-palette
 
 include Makefile.config
 
