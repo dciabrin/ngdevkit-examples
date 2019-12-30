@@ -70,7 +70,7 @@ $(CROM2): $(ASSETS)/rom/c2.bin | rom sprites/all.c2
 
 # fixed tile ROM: fonts from common assets
 $(SROM): $(ASSETS)/rom/s1.bin | rom
-	cp $(ASSETS)/rom/s1.bin	$@ && $(TRUNCATE) -s 1048576 $@
+	cp $(ASSETS)/rom/s1.bin	$@ && $(TRUNCATE) -s 131072 $@
 
 # program ROM
 $(PROM): $(ELF) | rom

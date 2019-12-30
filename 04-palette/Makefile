@@ -64,7 +64,7 @@ $(CROM2): $(ASSETS)/rom/c2.bin | rom
 
 # fixed tile ROM: fonts from common assets
 $(SROM): $(ASSETS)/rom/s1.bin gradient.bin | rom
-	cat $(ASSETS)/rom/s1.bin gradient.bin > $@ && $(TRUNCATE) -s 1048576 $@
+	cat $(ASSETS)/rom/s1.bin gradient.bin > $@ && $(TRUNCATE) -s 131072 $@
 
 # program ROM
 $(PROM): $(ELF) | rom
