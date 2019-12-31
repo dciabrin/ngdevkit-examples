@@ -74,7 +74,7 @@ $(SROM): $(ASSETS)/rom/s1.bin | rom
 
 # program ROM
 $(PROM): $(ELF) | rom
-	$(M68KOBJCOPY) -O binary -S -R .comment --reverse-bytes=2 $< $@
+	$(M68KOBJCOPY) -O binary -S -R .comment $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 clean:
 	rm -rf *.gif *.png *.pal *.o *~ $(ELF) tmp.* rom sprites
