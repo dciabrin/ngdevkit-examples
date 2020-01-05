@@ -49,7 +49,7 @@ def blit_msg(dst, src, string, all_tiles):
         for letter, tile in zip(string, string_tiles):
             tile *= 8
             xpos = tile % 2048;
-            ypos = (tile / 2048) * 8;
+            ypos = (tile // 2048) * 8;
             dst.blit(src, (xpos, ypos), area = (ord(letter)*8, row, 8, 8))
         row+=8
 
