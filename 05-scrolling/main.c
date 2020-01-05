@@ -41,7 +41,7 @@ char str[30];
 /// Start of sprite tiles
 #define CROM_BACKGROUND_OFFSET 60
 #define CROM_FOREST_OFFSET 276
-#define CROM_FRONT_OFFSET 456
+#define CROM_FRONT_OFFSET 546
 
 // Fix point logic for slow scrolling
 #define FIX_FRACTIONAL_BITS 3
@@ -182,40 +182,40 @@ void wait_vblank() {
 
 // three planes in this example
 plane_t back = {
-    .sprite = 0,
+    .sprite = 1,
     .tile_offset = CROM_BACKGROUND_OFFSET,
     .palette = 1,
     .width = 24,
     .height = 7,
-    .x = 8,
+    .x = 0,
     .y = -32,
-    .leftmost = 0,
+    .leftmost = 1,
     .offset = FIX_POINT(16,0),
     .increment = FIX_POINT(0,1) // 0.125
 };
 
 plane_t forest = {
-    .sprite = 24,
+    .sprite = 25,
     .tile_offset = CROM_FOREST_OFFSET,
     .palette = 2,
-    .width = 20,
+    .width = 30,
     .height = 9,
-    .x = 8,
+    .x = 0,
     .y = -96,
-    .leftmost = 24,
+    .leftmost = 25,
     .offset = FIX_POINT(16,0),
     .increment = FIX_POINT(0,4) // 0.5
 };
 
 plane_t front = {
-    .sprite = 44,
+    .sprite = 55,
     .tile_offset = CROM_FRONT_OFFSET,
     .palette = 3,
     .width = 24,
     .height = 9,
-    .x = 8,
+    .x = 0,
     .y = -96,
-    .leftmost = 44,
+    .leftmost = 55,
     .offset = FIX_POINT(16,0),
     .increment = FIX_POINT(1,0) // 1.0
 };

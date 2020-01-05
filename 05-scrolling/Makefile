@@ -38,7 +38,7 @@ sprites/back.pal: sprites/back.png
 	$(PALTOOL) $< -o $@
 
 sprites/forest.png: gfx/country-platform-forest.png | sprites
-	$(CONVERT) $^ $^ +append -crop 320x144+0+80 +repage PNG8:$@
+	$(CONVERT) $^ $^ $^ +append -crop 480x144+0+80 +repage PNG8:$@
 
 sprites/forest.c1 sprites/forest.c2: sprites/forest.png
 	$(TILETOOL) --sprite -c $< -o $@ $(@:%.c1=%).c2
