@@ -51,7 +51,7 @@ $(CROM1): tmp.c1 $(ASSETS)/rom/c1.bin | rom
 	cat $(ASSETS)/rom/c1.bin tmp.c1 > $@ && $(TRUNCATE) -s 1048576 $@
 
 $(CROM2): $(ASSETS)/rom/c2.bin | rom
-	cat $(ASSETS)/rom/c1.bin tmp.c1 > $@ && $(TRUNCATE) -s 1048576 $@
+	cat $(ASSETS)/rom/c2.bin tmp.c2 > $@ && $(TRUNCATE) -s 1048576 $@
 
 # fixed tile ROM: fonts from common assets
 $(SROM): $(ASSETS)/rom/s1.bin | rom
