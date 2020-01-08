@@ -36,8 +36,9 @@ int __errno;
 /// Transparent tile in BIOS ROM
 #define SROM_EMPTY_TILE 255
 
-/// First tile for the sprite in the ROM
-#define START_TILE 60
+/// The Neo Geo BIOS uses the first tiles in the C-ROM
+/// up to tile 255. So use the first available one
+#define START_TILE 256
 
 
 /// Handy function to display a string on the fix map

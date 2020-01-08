@@ -39,9 +39,9 @@ char str[30];
 #define SROM_TXT_TILE_OFFSET 0
 
 /// Start of sprite tiles
-#define CROM_BACKGROUND_OFFSET 60
-#define CROM_FOREST_OFFSET 276
-#define CROM_FRONT_OFFSET 546
+#define CROM_BACKGROUND_OFFSET 256
+#define CROM_FOREST_OFFSET 472
+#define CROM_FRONT_OFFSET 742
 
 // Fix point logic for slow scrolling
 #define FIX_FRACTIONAL_BITS 3

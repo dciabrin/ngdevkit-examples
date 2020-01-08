@@ -144,8 +144,8 @@ void set_player_state()
 {
     // tile positions in cROM for the animations
     // each frame is made of 16 tiles
-    static const u16 idle_frame[8] = {60, 76, 92, 108, 124, 140, 156, 172};
-    static const u16 walk_frame[8] = {188, 204, 220, 236, 252, 268, 284, 300};
+    static const u16 idle_frame[8] = {256, 272, 288, 304, 320, 336, 352, 368};
+    static const u16 walk_frame[8] = {384, 400, 416, 432, 448, 464, 480, 496};
     if (vbl-- == 0) {
         frame_cycle = (frame_cycle+1) & 7;
         vbl = 4;
