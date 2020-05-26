@@ -23,7 +23,7 @@ comes with a simple and fast CRT scanline shader :P
 
 Prior to using ngdevkit-examples, you must install
 [ngdevkit](ngdevkit) and a couple of additional packages on your
-system. If you run Ubuntu or Debian, you can install debian
+system. If you're running on Ubuntu or Debian, you can install debian
 packages of ngdevkit and GnGeo with:
 
     add-apt-repository -y ppa:dciabrin/ngdevkit
@@ -33,7 +33,23 @@ packages of ngdevkit and GnGeo with:
     apt-get install -y ngdevkit ngdevkit-gngeo
     apt-get install -y pkg-config autoconf automake zip imagemagick
 
-If you can't install debian packages, you can clone the
+If you're running on Windows 10, you can also use those pre-built
+deb binaries with [WSL][wsl]. Details on how to install and use them
+are available in [ngdevkit's installation notes for Windows 10][readmewin].
+
+If you're running on macOS, you can install pre-built [brew][brew]
+packages, available in the ngdevkit tap:
+
+    # If you haven't done it yet, make sure XCode is installed first
+    sudo xcode-select --install
+    brew tap dciabrin/ngdevkit
+    brew install ngdevkit ngdevkit-gngeo
+    # make sure you use brew's python3 in your shell
+    export PATH=/usr/local/opt/python3/bin:$PATH
+    pip3 install pygame==2.0.0.dev6
+    brew install pkg-config autoconf automake zip imagemagick
+
+If you can't install pre-built binary packages, you can clone the
 [ngdevkit](ngdevkit) git repository and follow the build instructions:
 
     git clone https://github.com/dciabrin/ngdevkit
@@ -118,3 +134,4 @@ License along with this program. If not, see
 
 
 [ngdevkit]: https://github.com/dciabrin/ngdevkit
+[readmewin]: https://github.com/dciabrin/ngdevkit/blob/master/README-mingw.md
