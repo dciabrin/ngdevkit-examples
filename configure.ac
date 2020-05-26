@@ -20,7 +20,7 @@ dnl
 dnl MinGW-specific options
 dnl
 AC_ARG_ENABLE([mingw],
-	      AS_HELP_STRING([--enable-mingw], [Build Win10-native versions of emudbg and gngeo]),
+	      AS_HELP_STRING([--enable-mingw], [Look for a Win10-native version of gngeo available in PATH]),
 	      AS_IF([test "x$enable_mingw" = xyes], [ENABLE_MINGW="yes"], [ENABLE_MINGW="no"]),
               [ENABLE_MINGW="no"])
 AC_SUBST([ENABLE_MINGW])
