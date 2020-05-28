@@ -18,7 +18,27 @@ matrix:
             - pkg-config
             - imagemagick
 
+    - name: "macOS"
+      os: osx
+      osx_image: xcode11.4
+      addons:
+        homebrew:
+          taps: dciabrin/ngdevkit
+          packages:
+            - ngdevkit
+            - ngdevkit-gngeo
+            - zip
+            - pkg-config
+            - imagemagick
+            - autoconf
+            - automake
+      env:
+        PY3PATH="/usr/local/opt/python3/bin"
+      before_script:
+        - $PY3PATH/pip3 install pygame
+
 script:
+  - if [ -n "$PY3PATH" ]; then export PATH=$PY3PATH:$PATH; fi
   - git submodule update --init --recursive
   - autoreconf -iv
   - ./configure
