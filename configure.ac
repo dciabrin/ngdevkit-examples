@@ -71,10 +71,12 @@ gngeo_name=ngdevkit-gngeo
 fi
 
 AC_PATH_PROG([gngeo], [$gngeo_name])
+# escape potential spaces from path
+gngeo=$(echo "$gngeo" | sed 's/ /\\ /g')
 
 if test x"$ENABLE_MINGW" = x"yes"; then
-  GNGEO_ABS_PREFIX="`dirname $gngeo`/"
-  GNGEO_PRE="cd $GNGEO_ABS_PREFIX &&"
+  GNGEO_ABS_PREFIX="`eval dirname ${gngeo}`/"
+  GNGEO_PRE="cd \"$GNGEO_ABS_PREFIX\" &&"
   GNGEO_POST="; cat gngeo_log.txt"
 else
   GNGEO_ABS_PREFIX=""
@@ -85,10 +87,10 @@ fi
 if test x"$gngeo" != x""; then
   if test x"$ENABLE_MINGW" = x"yes"; then
     AC_MSG_CHECKING([ngdevkit-gngeo install path])
-    gngeo_install_path=`dirname $gngeo`
-    if test -d "$gngeo_install_path"; then
-      GNGEO_INSTALL_PATH=$gngeo_install_path
-      AC_MSG_RESULT([$GNGEO_INSTALL_PATH])
+    gngeo_install_path="`eval dirname ${gngeo}`"
+    if eval test -d \"${gngeo_install_path}\"; then
+      AC_MSG_RESULT([$gngeo_install_path])
+      GNGEO_INSTALL_PATH=$(echo "$gngeo_install_path" | sed 's/ /\\ /g')
     else
       AC_MSG_ERROR([not found])
     fi
