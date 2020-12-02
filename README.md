@@ -31,7 +31,7 @@ packages of ngdevkit and GnGeo with:
     # add-apt-repository ppa:thopiekar/pygame
     apt-get update
     apt-get install -y ngdevkit ngdevkit-gngeo
-    apt-get install -y pkg-config autoconf automake zip imagemagick
+    apt-get install -y pkg-config autoconf automake zip imagemagick sox
 
 If you're running on Windows 10, you can also use those pre-built
 deb binaries with [WSL][wsl]. Details on how to install and use them
@@ -47,7 +47,7 @@ packages, available in the ngdevkit tap:
     # make sure you use brew's python3 in your shell
     export PATH=/usr/local/opt/python3/bin:$PATH
     pip3 install pygame==2.0.0.dev6
-    brew install pkg-config autoconf automake zip imagemagick
+    brew install pkg-config autoconf automake zip imagemagick sox
 
 If you can't install pre-built binary packages, you can clone the
 [ngdevkit](ngdevkit) git repository and follow the build instructions:

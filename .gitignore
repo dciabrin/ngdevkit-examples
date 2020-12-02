@@ -3,6 +3,8 @@
 *.elf
 *.ihx
 *.rel
+*.lst
+*.rst
 
 # Libraries
 *.a
@@ -25,6 +27,7 @@ rom
 assets/*.bmp
 assets/*.png
 sprites
+samples
 04-palette/*.bin
 04-palette/*.gif
 

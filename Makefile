@@ -19,7 +19,8 @@ EXAMPLES = \
 02-sprite \
 03-sprite-animation \
 04-palette \
-05-scrolling
+05-scrolling \
+06-sound-adpcma
 
 include Makefile.config
 

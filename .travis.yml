@@ -17,6 +17,8 @@ matrix:
             - zip
             - pkg-config
             - imagemagick
+            - sox
+            - libsox-fmt-mp3
 
     - name: "macOS"
       os: osx
@@ -30,6 +32,7 @@ matrix:
             - zip
             - pkg-config
             - imagemagick
+            - sox
             - autoconf
             - automake
       env:
