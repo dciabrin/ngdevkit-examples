@@ -62,6 +62,7 @@ else
 fi
 AC_PATH_PROG([zip], [zip])
 AC_PATH_PROG([convert], [convert])
+AC_PATH_PROG([sox], [sox])
 AC_PATH_PROG([rsync], [rsync])
 
 if test x"$ENABLE_MINGW" = x"yes"; then

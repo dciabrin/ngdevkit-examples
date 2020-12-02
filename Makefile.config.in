@@ -18,12 +18,15 @@ Z80SDRANLIB=@ngsdranlib@
 NGDKBINDIR=@ngdkbindir@
 NGDKSHAREDIR=@ngdksharedir@
 NULLSOUNDDIR=$(NGDKSHAREDIR)
+NULLSOUNDSRCDIR=$(NGDKSHAREDIR)/nullsound
 NULLBIOSDIR=$(NGDKSHAREDIR)
 PALTOOL=@ngdkbindir@/paltool.py
 TILETOOL=@ngdkbindir@/tiletool.py
+ADPCMTOOL=@ngdkbindir@/adpcmtool.py
 
 # additional dependencies
 CONVERT=@convert@
+SOX=@sox@
 PYTHON=@python@
 ZIP=@zip@
 RSYNC=@rsync@
