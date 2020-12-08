@@ -31,7 +31,7 @@ packages of ngdevkit and GnGeo with:
     # add-apt-repository ppa:thopiekar/pygame
     apt-get update
     apt-get install -y ngdevkit ngdevkit-gngeo
-    apt-get install -y pkg-config autoconf automake zip imagemagick sox
+    apt-get install -y pkg-config autoconf automake zip imagemagick sox libsox-fmt-mp3
 
 If you're running on Windows 10, you can also use those pre-built
 deb binaries with [WSL][wsl]. Details on how to install and use them
