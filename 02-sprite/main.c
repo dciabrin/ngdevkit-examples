@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Damien Ciabrini
+ * Copyright (c) 2018-2020 Damien Ciabrini
  * This file is part of ngdevkit
  *
  * ngdevkit is free software: you can redistribute it and/or modify
@@ -20,47 +20,26 @@
 // https://wiki.neogeodev.org/index.php?title=Sprites
 
 #include <ngdevkit/neogeo.h>
+#include <ngdevkit/ng-fix.h>
 #include <stdio.h>
 
-/// for snprintf()
-int __errno;
+// Current state of player 1's controller
+extern u8 bios_p1current;
 
 // Address of Sprite Control Block in VRAM
 #define ADDR_SCB1      0
 #define ADDR_SCB2 0x8000
 #define ADDR_SCB3 0x8200
 
-/// Start of character tiles in BIOS ROM
-#define SROM_TXT_TILE_OFFSET 0
-
-/// Transparent tile in BIOS ROM
-#define SROM_EMPTY_TILE 255
-
 /// The Neo Geo BIOS uses the first tiles in the C-ROM
 /// up to tile 255. So use the first available one
 #define START_TILE 256
 
 
-/// Handy function to display a string on the fix map
-void display(int x, int y, const char *text) {
-  *REG_VRAMADDR=ADDR_FIXMAP+(x<<5)+y;
-  *REG_VRAMMOD=32;
-  while (*text) *REG_VRAMRW=(u16)(SROM_TXT_TILE_OFFSET+*text++);
-}
-
-// Clear the 40*32 tiles of fix map
-void clear_tiles() {
-    *REG_VRAMADDR=ADDR_FIXMAP;
-    *REG_VRAMMOD=1;
-    for (u16 i=0;i<40*32;i++) {
-        *REG_VRAMRW=(u16)SROM_EMPTY_TILE;
-    }
-}
-
 void init_palette() {
     /// first 16 colors palette for the fix tiles
     /// second 16 colors palette for the sprite
-    const u16 clut[]= { 0x8000, 0x0fa0, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    const u16 clut[]= { 0x8000, 0x0fa0, 0x0533, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
                         0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
                         0x0000, 0x0fff, 0x0ddd, 0x0aaa, 0x7555, 0x306E, 0x0000, 0x0000,
                         0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
@@ -70,12 +49,6 @@ void init_palette() {
         MMAP_PALBANK1[i]=clut[i];
     }
 }
-
-/* void display(int x, int y, const char *text) { */
-/*     *REG_VRAMADDR=ADDR_FIXMAP+(x<<5)+y; */
-/*     *REG_VRAMMOD=32; */
-/*     while (*text) *REG_VRAMRW=(u16)*text++; */
-/* } */
 
 
 s16 x=40;
@@ -144,16 +117,15 @@ char joystate[5]={'0','0','0','0',0};
 // Get joystick status and move sprite position
 void check_move_sprite()
 {
-    u8 js1=*REG_P1CNT^0xff;
-    u8 u=(js1>>0 & 1);
-    u8 d=(js1>>1 & 1);
-    u8 l=(js1>>2 & 1);
-    u8 r=(js1>>3 & 1);
+    u8 u=(bios_p1current & CNT_UP);
+    u8 d=(bios_p1current & CNT_DOWN);
+    u8 l=(bios_p1current & CNT_LEFT);
+    u8 r=(bios_p1current & CNT_RIGHT);
 
-    joystate[0]='0'+u;
-    joystate[1]='0'+d;
-    joystate[2]='0'+l;
-    joystate[3]='0'+r;
+    joystate[0]=u?'1':'0';
+    joystate[1]=d?'1':'0';
+    joystate[2]=l?'1':'0';
+    joystate[3]=r?'1':'0';
 
     if (u) {y+=1;}
     if (d) {y-=1;}
@@ -179,33 +151,33 @@ void rom_callback_VBlank() {
 }
 
 // Active wait until we see a screen refresh
-void wait_vblank() {
+void ng_wait_vblank() {
     while (!vblank);
     vblank=0;
 }
 
 
 int main(void) {
-    clear_tiles();
+    ng_cls();
     init_palette();
     init_sprite();
 
-    const char hello[]="Move the sprite with the joystick!";
-    display((40-sizeof(hello))/2, 18, hello);
+    ng_text_tall(27, 26, 0, "SPRITE TEST");
+    ng_text(3, 18, 0, "Move the sprite with the joystick!");
 
     char str[10];
     u8 x = 0;
 
     for(;;) {
         snprintf(str, 10, "frame %2d", x);
-        display(15, 20, str);
+        ng_text(2, 26, 0, str);
         x=(x+1)%60;
 
         check_move_sprite();
         snprintf(str, 15, "JS1 %s", joystate);
-        display(15, 21, str);
+        ng_text(2, 27, 0, str);
 
-        wait_vblank();
+        ng_wait_vblank();
     }
     return 0;
 }

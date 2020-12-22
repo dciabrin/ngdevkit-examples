@@ -84,7 +84,7 @@ $(SROM): $(FIX_ASSETS) | rom
 
 # program ROM
 $(ELF):	$(OBJS:%=%.o)
-	$(M68KGCC) `pkg-config --libs ngdevkit` $^ -o $@
+	$(M68KGCC) -o $@ $^ `pkg-config --libs ngdevkit`
 
 %.o: %.c
 	$(M68KGCC) $(NGCFLAGS) -std=gnu99 -fomit-frame-pointer -g -c $< -o $@

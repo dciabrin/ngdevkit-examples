@@ -20,23 +20,10 @@
 // https://wiki.neogeodev.org/index.php?title=Sprites
 
 #include <ngdevkit/neogeo.h>
+#include <ngdevkit/ng-fix.h>
+#include <ngdevkit/ng-video.h>
 #include <stdio.h>
 
-/// for snprintf()
-int __errno;
-char str[30];
-
-// Address of Sprite Control Block in VRAM
-#define ADDR_SCB1      0
-#define ADDR_SCB2 0x8000
-#define ADDR_SCB3 0x8200
-#define ADDR_SCB4 0x8400
-
-/// Transparent tile in BIOS ROM
-#define SROM_EMPTY_TILE 255
-
-/// Start of character tiles in BIOS ROM
-#define SROM_TXT_TILE_OFFSET 0
 
 /// Start of sprite tiles
 #define CROM_BACKGROUND_OFFSET 256
@@ -65,25 +52,10 @@ typedef struct _plane_t {
 } plane_t;
 
 
-/// Handy function to display a string on the fix map
-void display(int x, int y, const char *text) {
-  *REG_VRAMADDR=ADDR_FIXMAP+(x<<5)+y;
-  *REG_VRAMMOD=32;
-  while (*text) *REG_VRAMRW=(u16)(SROM_TXT_TILE_OFFSET+*text++);
-}
-
-// Clear the 40*32 tiles of fix map
-void clear_tiles() {
-    *REG_VRAMADDR=ADDR_FIXMAP;
-    *REG_VRAMMOD=1;
-    for (u16 i=0;i<40*32;i++) {
-        *REG_VRAMRW=(u16)SROM_EMPTY_TILE;
-    }
-}
 
 const u16 clut[][16]= {
     /// first 16 colors palette for the fix tiles
-    {0x8000, 0x0fff, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    {0x8000, 0x0fff, 0x0333, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
      0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
     /// sprite palettes
     #include "sprites/back.pal"
@@ -222,16 +194,16 @@ plane_t front = {
 
 
 int main(void) {
-    clear_tiles();
+    ng_cls();
     init_palette();
     setup_plane(&back);
     setup_plane(&forest);
     setup_plane(&front);
 
-    display(2, 3, "Parallax scrolling");
+    ng_text_tall(2, 3, 0, "PARALLAX SCROLLING");
 
     for(;;) { 
-        wait_vblank();
+        ng_wait_vblank();
         update_plane(&back);
         update_plane(&forest);
         update_plane(&front);

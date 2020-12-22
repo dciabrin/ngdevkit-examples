@@ -30,7 +30,7 @@ $(ASSETS)/rom/c1.bin $(ASSETS)/rom/s1.bin:
 	$(MAKE) -C $(ASSETS)
 
 $(ELF):	$(OBJS:%=%.o)
-	$(M68KGCC) `pkg-config --libs ngdevkit` $^ -o $@
+	$(M68KGCC) -o $@ $^ `pkg-config --libs ngdevkit`
 
 %.o: %.c
 	$(M68KGCC) `pkg-config --cflags ngdevkit` -std=gnu99 -fomit-frame-pointer -g -c $< -o $@

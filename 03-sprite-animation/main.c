@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Damien Ciabrini
+ * Copyright (c) 2018-2020 Damien Ciabrini
  * This file is part of ngdevkit
  *
  * ngdevkit is free software: you can redistribute it and/or modify
@@ -20,43 +20,14 @@
 // https://wiki.neogeodev.org/index.php?title=Sprites
 
 #include <ngdevkit/neogeo.h>
+#include <ngdevkit/ng-fix.h>
+#include <ngdevkit/ng-video.h>
 #include <stdio.h>
 
-/// for snprintf()
-int __errno;
-char str[16];
-
-// Address of Sprite Control Block in VRAM
-#define ADDR_SCB1      0
-#define ADDR_SCB2 0x8000
-#define ADDR_SCB3 0x8200
-
-/// Transparent tile in BIOS ROM
-#define SROM_EMPTY_TILE 255
-
-/// Start of character tiles in BIOS ROM
-#define SROM_TXT_TILE_OFFSET 0
-
-
-/// Handy function to display a string on the fix map
-void display(int x, int y, const char *text) {
-  *REG_VRAMADDR=ADDR_FIXMAP+(x<<5)+y;
-  *REG_VRAMMOD=32;
-  while (*text) *REG_VRAMRW=(u16)(SROM_TXT_TILE_OFFSET+*text++);
-}
-
-// Clear the 40*32 tiles of fix map
-void clear_tiles() {
-    *REG_VRAMADDR=ADDR_FIXMAP;
-    *REG_VRAMMOD=1;
-    for (u16 i=0;i<40*32;i++) {
-        *REG_VRAMRW=(u16)SROM_EMPTY_TILE;
-    }
-}
 
 const u16 clut[][16]= {
     /// first 16 colors palette for the fix tiles
-    {0x8000, 0x0fa0, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    {0x8000, 0x0fa0, 0x0644, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
      0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
     // inline sprite's palette (C format)
     #include "sprite.pal"
@@ -70,6 +41,8 @@ void init_palette() {
     }
     *((volatile u16*)0x401ffe)=0xa80;
 }
+
+char str[16];
 
 s16 x=130;
 s16 y=-80;
@@ -98,7 +71,7 @@ void update_sprite(u16 start_tile, u16 mirror) {
     }
 
     *REG_VRAMMOD=0x200;
-    // sprite shape: position , max zoon, 4 tiles tall
+    // sprite shape: position , max zoom, 4 tiles tall
     *REG_VRAMADDR=ADDR_SCB2;
     *REG_VRAMRW=0xFFF;
     *REG_VRAMRW=(y<<7)+4;
@@ -116,16 +89,15 @@ void check_move_sprite()
 {
     static char joystate[5]={'0','0','0','0',0};
 
-    u8 js1=*REG_P1CNT^0xff;
-    u8 u=(js1>>0 & 1);
-    u8 d=(js1>>1 & 1);
-    u8 l=(js1>>2 & 1);
-    u8 r=(js1>>3 & 1);
+    u8 u=(bios_p1current & CNT_UP);
+    u8 d=(bios_p1current & CNT_DOWN);
+    u8 l=(bios_p1current & CNT_LEFT);
+    u8 r=(bios_p1current & CNT_RIGHT);
 
-    joystate[0]='0'+u;
-    joystate[1]='0'+d;
-    joystate[2]='0'+l;
-    joystate[3]='0'+r;
+    joystate[0]=u?'1':'0';
+    joystate[1]=d?'1':'0';
+    joystate[2]=l?'1':'0';
+    joystate[3]=r?'1':'0';
 
     if (u) {y+=1;}
     if (d) {y-=1;}
@@ -133,7 +105,7 @@ void check_move_sprite()
     if (r) {x+=1;}
 
     snprintf(str, 15, "JS1 %s", joystate);
-    display(2, 25, str);
+    ng_text(2, 25, 0, str);
 }
 
 
@@ -151,9 +123,8 @@ void set_player_state()
         vbl = 4;
     }
 
-    u8 js1 = *REG_P1CNT^0xff;
-    u8 l = (js1>>2 & 1);
-    u8 r = (js1>>3 & 1);
+    u8 l = (bios_p1current & CNT_LEFT);
+    u8 r = (bios_p1current & CNT_RIGHT);
 
     static u8 mirror;
     const u16* frame;
@@ -161,43 +132,30 @@ void set_player_state()
         frame = idle_frame;
     } else {
         frame = walk_frame;
-        mirror = l;
+        mirror = l?1:0;
     }
     update_sprite(frame[frame_cycle], mirror);
 
     snprintf(str, 15, "frame  %d", frame_cycle);
-    display(2, 26, str);
+    ng_text(2, 26, 0, str);
     snprintf(str, 15, "mirror %d", mirror);
-    display(2, 27, str);
+    ng_text(2, 27, 0, str);
     snprintf(str, 15, "sprite %s", frame == idle_frame?"idle":"walk");
-    display(2, 28, str);
-}
-
-
-// Vertical blanking.
-volatile u8 vblank=0;
-
-void rom_callback_VBlank() {
-    vblank=1;
-}
-
-void wait_vblank() {
-    while (!vblank);
-    vblank=0;
+    ng_text(2, 28, 0, str);
 }
 
 
 int main(void) {
-    clear_tiles();
+    ng_cls();
     init_palette();
 
-    const char hello[]="Move the sprite with the joystick!";
-    display((40-sizeof(hello))/2, 18, hello);
+    ng_text_tall(24, 27, 0, "ANIMATION TEST");
+    ng_text(4, 18, 0, "Move the sprite with the joystick!");
 
     for(;;) {
         set_player_state();
         check_move_sprite();
-        wait_vblank();
+        ng_wait_vblank();
     }
     return 0;
 }

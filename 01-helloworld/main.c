@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Damien Ciabrini
+ * Copyright (c) 2015-2020 Damien Ciabrini
  * This file is part of ngdevkit
  *
  * ngdevkit is free software: you can redistribute it and/or modify
@@ -18,39 +18,44 @@
 
 #include <ngdevkit/neogeo.h>
 
-/// Start of character tiles in BIOS ROM
+/// Start of character tiles in GAME ROM
 #define SROM_TXT_TILE_OFFSET 0
 
-/// Transparent tile in BIOS ROM
+/// Transparent tile in GAME ROM
 #define SROM_EMPTY_TILE 255
 
+
+/// Clear the 40*32 tiles of fix map
+void ng_cls() {
+    u16 val = SROM_EMPTY_TILE;
+    *REG_VRAMADDR = ADDR_FIXMAP;
+    *REG_VRAMMOD = 1;
+    for (u16 i=1280; i!=0; i--) *REG_VRAMRW = val;
+}
+
 /// Handy function to display a string on the fix map
-void display(int x, int y, const char *text) {
-  *REG_VRAMADDR=ADDR_FIXMAP+(x<<5)+y;
-  *REG_VRAMMOD=32;
-  while (*text) *REG_VRAMRW=(u16)(SROM_TXT_TILE_OFFSET+*text++);
+void ng_text(u8 x, u8 y, const char *text) {
+    u16 base_val = SROM_TXT_TILE_OFFSET;
+    *REG_VRAMADDR=ADDR_FIXMAP+(x<<5)+y;
+    *REG_VRAMMOD=32;
+    while (*text) *REG_VRAMRW = (u16)(base_val+*text++);
 }
 
 
 int main(void) {
-  // Clear the 40*32 tiles of fix map
-  *REG_VRAMADDR=ADDR_FIXMAP;
-  *REG_VRAMMOD=1;
-  for (u16 i=0;i<1280;i++) {
-    *REG_VRAMRW=(u16)SROM_EMPTY_TILE;
-  }
+  ng_cls();
 
   // Set up a minimal palette
-  const u16 palette[]={0x8000, 0xfff};
+  const u16 palette[]={0x8000, 0x0fff, 0x0555};
   for (u16 i=0; i<3; i++) {
     MMAP_PALBANK1[i]=palette[i];
   }
 
   // Salute the world!
-  const char hello1[]="hello NEO-GEO!";
+  const char hello1[]="Hello NEO-GEO!";
   const char hello2[]="https://github.com/dciabrin/ngdevkit";
-  display((42-sizeof(hello1))/2, 10, hello1);
-  display((42-sizeof(hello2))/2, 12, hello2);
+  ng_text((42-sizeof(hello1))/2, 13, hello1);
+  ng_text((42-sizeof(hello2))/2, 15, hello2);
 
   for(;;) {}
   return 0;

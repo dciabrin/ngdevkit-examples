@@ -20,48 +20,30 @@
 // https://wiki.neogeodev.org/index.php?title=YM2610_registers
 
 #include <ngdevkit/neogeo.h>
+#include <ngdevkit/bios-ram.h>
+#include <ngdevkit/ng-fix.h>
 #include <stdio.h>
 
-/// for snprintf()
-int __errno;
-char str[30];
 
-// Address of Sprite Control Block in VRAM
-#define ADDR_SCB1      0
-#define ADDR_SCB2 0x8000
-#define ADDR_SCB3 0x8200
-#define ADDR_SCB4 0x8400
+/// controller's current state, and change on button press (not release)
+extern u8 bios_p1current;
+extern u8 bios_p1change;
+#define A_PRESSED 0x10
+#define B_PRESSED 0x20
+#define C_PRESSED 0x40
 
-/// Transparent tile in BIOS ROM
-#define SROM_EMPTY_TILE 255
-
-/// Start of character tiles in BIOS ROM
-#define SROM_TXT_TILE_OFFSET 0
 
 /// z80 sound driver communication
-#define REG_SOUND 0x320000
-
-
-/// Handy function to display a string on the fix map
-void display(int x, int y, const char *text) {
-  *REG_VRAMADDR=ADDR_FIXMAP+(x<<5)+y;
-  *REG_VRAMMOD=32;
-  while (*text) *REG_VRAMRW=(u16)(SROM_TXT_TILE_OFFSET+*text++);
-}
-
-// Clear the 40*32 tiles of fix map
-void clear_tiles() {
-    *REG_VRAMADDR=ADDR_FIXMAP;
-    *REG_VRAMMOD=1;
-    for (u16 i=0;i<40*32;i++) {
-        *REG_VRAMRW=(u16)SROM_EMPTY_TILE;
-    }
-}
+#define REG_SOUND ((u8*)0x320000)
 
 const u16 clut[][16]= {
     /// first 16 colors palette for the fix tiles
     {0x8000, 0x0fff, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
      0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
+    {0x8000, 0x0fff, 0x0a40, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
+    {0x8000, 0x0fff, 0x004a, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000}
 };
 
 void init_palette() {
@@ -74,69 +56,45 @@ void init_palette() {
 }
 
 
-// Vertical blanking.
-/* volatile u8 vblank=0; */
-
-/* void rom_callback_VBlank() { */
-/*     vblank=1; */
-/* } */
-
-/* void wait_vblank() { */
-/*     while (!vblank); */
-/*     vblank=0; */
-/* } */
-
-u8 button_a=0xff;
-u8 button_b=0xff;
-u8 button_c=0xff;
-
-u8 update_buttons()
-{
-    // A button pressed
-    u8 prev_button_a = button_a;
-    u8 prev_button_b = button_b;
-    u8 prev_button_c = button_c;
-    button_a = *REG_P1CNT&0x10;
-    button_b = *REG_P1CNT&0x20;
-    button_c = *REG_P1CNT&0x40;
-
-    u8 pressed_a = ((prev_button_a != button_a) && (button_a == 0))?1:0;
-    u8 pressed_b = ((prev_button_b != button_b) && (button_b == 0))?2:0;
-    u8 pressed_c = ((prev_button_c != button_c) && (button_c == 0))?4:0;
-    return pressed_c | pressed_b | pressed_a;
-}
-
 int main(void) {
-    *((volatile u8*)REG_SOUND)=0x3;
-    clear_tiles();
+    // Command 3: reset z80 sound driver
+    *REG_SOUND = 3;
+    ng_cls();
     init_palette();
 
 #define TOP 2
-    display(9, TOP+6, "PRESS BUTTONS TO PLAY");
-    display(9, TOP+7, "   ADPCM-A SAMPLES   ");
-    display(6, TOP+11, "CHANNEL 1         CHANNEL 2");
-    display(6, TOP+13, " play on         play until");
-    display(6, TOP+14, " pressed          finished");
-    display(6, TOP+19, "A woosh:         C break: ");
-    display(6, TOP+21, "B  kick:");
+    ng_center_text(TOP+6, 0, "PRESS BUTTONS TO PLAY");
+    ng_center_text(TOP+7, 0, "   ADPCM-A SAMPLES   ");
+
+    ng_text_tall(6, TOP+11, 1, "CHANNEL 1");
+    ng_text(6, TOP+13, 0, " play on");
+    ng_text(6, TOP+14, 0, " pressed");
+    ng_text(6, TOP+19, 1, "A woosh:");
+    ng_text(6, TOP+21, 1, "B  kick:");
+
+    ng_text_tall(24, TOP+11, 2, "CHANNEL 2");
+    ng_text(23, TOP+13, 0, "play until");
+    ng_text(24, TOP+14, 0, "finished");
+    ng_text(23, TOP+19, 2, "C break: ");
 
     for(;;) {
-        u8 pressed = update_buttons();
-        display(15, TOP+19, button_a?"0":"1");
-        display(15, TOP+21, button_b?"0":"1");
-        display(32, TOP+19, button_c?"0":"1");
+        ng_text(15, TOP+19, 1, bios_p1current&A_PRESSED?"1":"0");
+        ng_text(15, TOP+21, 1, bios_p1current&B_PRESSED?"1":"0");
+        ng_text(32, TOP+19, 2, bios_p1current&C_PRESSED?"1":"0");
 
         // trigger cmds in in the sound driver, based on input
-        if (pressed&1) {
-            *((volatile u8*)REG_SOUND)=0x4;
+        if (bios_p1change & A_PRESSED) {
+            // Command 4: play "woosh" sample
+            *REG_SOUND=4;
         }
-        if (pressed&2) {
-            *((volatile u8*)REG_SOUND)=0x5;
+        if (bios_p1change & B_PRESSED) {
+            // Command 5: play "kick" sample
+            *REG_SOUND=5;
         }
-        if (pressed&4) {
-            *((volatile u8*)REG_SOUND)=0x6;
+        if (bios_p1change & C_PRESSED) {
+            // Command 6: play "break" sample (uninterruptible)
+            *REG_SOUND=6;
         }
-        /* wait_vblank(); */
     }
     return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Damien Ciabrini
+ * Copyright (c) 2019-2020 Damien Ciabrini
  * This file is part of ngdevkit
  *
  * ngdevkit is free software: you can redistribute it and/or modify
@@ -20,39 +20,14 @@
 // https://wiki.neogeodev.org/index.php?title=Palettes
 
 #include <ngdevkit/neogeo.h>
+#include <ngdevkit/ng-fix.h>
 #include <string.h>
 #include <stdio.h>
 
-/// for snprintf()
-int __errno;
-char str[16];
-
-/// Transparent tile in BIOS ROM
-#define SROM_EMPTY_TILE 255
-
-/// Start of character tiles in BIOS ROM
-#define SROM_TXT_TILE_OFFSET 0
 
 /// Start of gradient tiles in BIOS ROM
 #define SROM_GRADIENT_TILE_OFFSET 1280
 
-
-/// Handy function to display a string on the fix map
-void center_display(int y, int pal, const char *text) {
-    int x = (40-strlen(text))>>1;
-    *REG_VRAMADDR=ADDR_FIXMAP+(x<<5)+y;
-    *REG_VRAMMOD=32;
-    while (*text) *REG_VRAMRW=(u16)((pal<<12)|(SROM_TXT_TILE_OFFSET+*text++));
-}
-
-// Clear the 40*32 tiles of fix map
-void clear_tiles() {
-    *REG_VRAMADDR=ADDR_FIXMAP;
-    *REG_VRAMMOD=1;
-    for (u16 i=0;i<40*32;i++) {
-        *REG_VRAMRW=(u16)SROM_EMPTY_TILE;
-    }
-}
 
 // Color #0 in the palette is always transparent
 // so start from #1, and skip the last one
@@ -80,19 +55,16 @@ void init_palette() {
     for (u16 i=0;i<256; i++) {
         MMAP_PALBANK1[i]=p[i];
     }
-    /* for (u16 i=64;i<128; i++) { */
-    /*     MMAP_PALBANK1[i]=p[i]; */
-    /* } */
 }
 
 
 
 int main(void) {
-    clear_tiles();
+    ng_cls();
     init_palette();
 
-    center_display(6, 14, "Color gradients with dark bit");
-    center_display(7, 14, "(visible on latest ngdevkit-gngeo)");
+    ng_text(6, 5, 14, "COLOR GRADIENT WITH DARK BIT");
+    ng_text(3, 7, 14, "(visible on latest ngdevkit-gngeo)");
 
     gradient(4, 12, 0);
     gradient(4, 13, 4);

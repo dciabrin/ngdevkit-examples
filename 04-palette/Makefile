@@ -37,7 +37,7 @@ gradient.gif:
 	$(CONVERT) -size 16x1 gradient:black-white -scale 800% $@
 
 $(ELF):	$(OBJS:%=%.o)
-	$(M68KGCC) `pkg-config --libs ngdevkit` $^ -o $@
+	$(M68KGCC) -o $@ $^ `pkg-config --libs ngdevkit`
 
 # gradient palette
 gradients.pal:

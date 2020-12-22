@@ -46,7 +46,7 @@ sprite.pal: sprites/all.png | sprites
 	$(PALTOOL) $< -o $@
 
 $(ELF):	$(OBJS:%=%.o)
-	$(M68KGCC) `pkg-config --libs ngdevkit` $^ -o $@
+	$(M68KGCC) -o $@ $^ `pkg-config --libs ngdevkit`
 
 %.o: %.c
 	$(M68KGCC) $(NGCFLAGS) -std=gnu99 -fomit-frame-pointer -g -c $< -o $@
