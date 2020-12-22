@@ -60,12 +60,15 @@ def main():
 
     parser = argparse.ArgumentParser(
         description='Build common Fixed and Sprite ROMs for all examples.')
-    parser.add_argument('-s', '--small', metavar = 'FILENAME', type = str,
+    parser.add_argument('-s', '--small', metavar='FILENAME', type = str,
                         required = True,
                         help = 'image for the small text tiles')
     parser.add_argument('-t', '--tall', metavar='FILENAME', type=str,
                         required = True,
                         help='image for the tall text tiles')
+    parser.add_argument('-b', '--bios', metavar='FILENAME', type=str,
+                        required = True,
+                        help='image for the BIOS eye catcher tiles')
     parser.add_argument('-o', '--output', metavar='FILENAME', type=str,
                         required = True,
                         help='output image for fix-tile ROM file')
@@ -77,16 +80,22 @@ def main():
     dst = pygame.Surface((2048, 40), depth = 8)
     smalltxt = pygame.image.load(arguments.small)
     talltxt = pygame.image.load(arguments.tall)
+    biostxt = pygame.image.load(arguments.bios)
+    # print(len(smalltxt.get_palette()))
+    # print(len(talltxt.get_palette()))
+    # sys.exit(0)
     pal = smalltxt.get_palette()
-    talltxt.set_palette(pal)
-    dst.set_palette(pal)
+    smalltxt.set_palette(pal[:16])
+    talltxt.set_palette(pal[:16])
+    biostxt.set_palette(pal[:16])
+    dst.set_palette(pal[:16])
     # Small and tall text tiles
     dst.blit(smalltxt, (0,0))
     dst.blit(talltxt, (0,8))
     dst.blit(talltxt, (0,24))
     # Inject a new message
-    blit_msg(dst, talltxt, "16BITS POWERED ", MAX_330_MEGA)
-    blit_msg(dst, talltxt, "GAME DEVELOPMENT", PRO_GEAR_SPEC)
+    blit_msg(dst, biostxt, "16BITS POWERED ", MAX_330_MEGA)
+    blit_msg(dst, biostxt, "GAME DEVELOPMENT", PRO_GEAR_SPEC)
     # Some tiles need to be empty no matter what
     dst.blit(dst, (ord('@')*8, 16), area = (0, 0, 8, 8))
     dst.blit(dst, (ord('{')*8, 0), area = (0, 0, 8, 8))

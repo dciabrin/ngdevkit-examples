@@ -24,6 +24,7 @@ $(CART): $(PROM) $(CROM1) $(CROM2) $(SROM) $(VROM) $(MROM) | rom
 
 OBJS=main
 ELF=rom.elf
+FIX_ASSETS=$(ASSETS)/rom/s1-shadow.bin
 
 $(ASSETS)/rom/c1.bin $(ASSETS)/rom/s1.bin:
 	$(MAKE) -C $(ASSETS)
@@ -51,8 +52,8 @@ $(CROM2): $(ASSETS)/rom/c2.bin | rom
 	cp $(ASSETS)/rom/c2.bin	$@ && $(TRUNCATE) -s 1048576 $@
 
 # fixed tile ROM: fonts from common assets
-$(SROM): $(ASSETS)/rom/s1.bin | rom
-	cp $(ASSETS)/rom/s1.bin	$@ && $(TRUNCATE) -s 131072 $@
+$(SROM): $(FIX_ASSETS) | rom
+	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s 131072 $@
 
 # program ROM
 $(PROM): $(ELF) | rom

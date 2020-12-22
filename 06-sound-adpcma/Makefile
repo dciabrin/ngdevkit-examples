@@ -28,6 +28,7 @@ Z80_NULLSOUND_OBJS=nullsound
 Z80_USER_OBJS=user_commands
 HEX=driver.ihx
 SAMPLES=woosh lefthook lightbulbbreaking
+FIX_ASSETS=$(ASSETS)/rom/s1-shadow.bin
 
 $(ASSETS)/rom/c1.bin $(ASSETS)/rom/s1.bin:
 	$(MAKE) -C $(ASSETS)
@@ -77,8 +78,8 @@ $(CROM2): $(ASSETS)/rom/c2.bin | rom
 
 
 # fixed tile ROM: fonts from common assets
-$(SROM): $(ASSETS)/rom/s1.bin | rom
-	cp $(ASSETS)/rom/s1.bin	$@ && $(TRUNCATE) -s 131072 $@
+$(SROM): $(FIX_ASSETS) | rom
+	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s 131072 $@
 
 
 # program ROM
