@@ -20,7 +20,8 @@ EXAMPLES = \
 03-sprite-animation \
 04-palette \
 05-scrolling \
-06-sound-adpcma
+06-sound-adpcma \
+07-attract-and-game
 
 include Makefile.config
 
