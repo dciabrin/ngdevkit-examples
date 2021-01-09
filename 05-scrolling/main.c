@@ -74,6 +74,9 @@ void init_palette() {
 
 
 void setup_plane(plane_t *plane) {
+    // The plane graphics are stored in the ROM as a sequence of
+    // horizontal tiles. A sprite is a vertical sequence of tiles, so
+    // its tiles are `plane->width` apart in the ROM
     for (u16 s=0; s<plane->width; s++) {
         *REG_VRAMMOD=1;
         *REG_VRAMADDR=ADDR_SCB1+((plane->sprite+s)*64);
@@ -85,7 +88,7 @@ void setup_plane(plane_t *plane) {
     }
 
     *REG_VRAMMOD=0x200;
-    // sprite shape: position , max zoom, 4 tiles tall
+    // sprite shape: position , max zoom
     *REG_VRAMADDR=ADDR_SCB2+plane->sprite;
     *REG_VRAMRW=0xFFF;
     *REG_VRAMRW=(plane->y<<7)+plane->height;
@@ -146,7 +149,7 @@ plane_t back = {
     .tile_offset = CROM_BACKGROUND_OFFSET,
     .palette = 1,
     .width = 24,
-    .height = 7,
+    .height = 9,
     .x = 0,
     .y = -32,
     .leftmost = 1,
