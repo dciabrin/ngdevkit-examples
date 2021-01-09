@@ -139,18 +139,6 @@ void update_plane(plane_t *plane) {
     
 }
 
-// Vertical blanking.
-volatile u8 vblank=0;
-
-void rom_callback_VBlank() {
-    vblank=1;
-}
-
-void wait_vblank() {
-    while (!vblank);
-    vblank=0;
-}
-
 
 // three planes in this example
 plane_t back = {
