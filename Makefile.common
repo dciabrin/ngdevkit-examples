@@ -34,7 +34,7 @@ cart: $(CART)
 
 $(CART):
 	cd rom && for i in *.??; do ln -nsf $$i $${i%.*}.bin; done; \
-	printf "===\nhttps://github.com/dciabrin/ngdevkit\n===" | zip -qz puzzledp.zip *.?? *.bin
+	printf "===\nhttps://github.com/dciabrin/ngdevkit\n===" | zip -qz $(GAMEROM).zip *.?? *.bin
 
 nullbios: $(BIOS)
 
@@ -119,10 +119,10 @@ endif
 endif
 
 gngeo:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --scale 3 --no-resize puzzledp)
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --scale 3 --no-resize $(GAMEROM)
 
 gngeo-fullscreen:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize puzzledp)
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize $(GAMEROM))
 
 endif
 
