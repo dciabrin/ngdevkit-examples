@@ -21,7 +21,8 @@ EXAMPLES = \
 04-palette \
 05-scrolling \
 06-sound-adpcma \
-07-attract-and-game
+07-attract-and-game \
+08-software-dips
 
 include Makefile.config
 
