@@ -26,7 +26,7 @@ EXAMPLES = \
 include Makefile.config
 
 all:
-	for i in $(EXAMPLES); do $(MAKE) -C $$i cart nullbios; done
+	for i in $(EXAMPLES); do $(MAKE) -C $$i cart nullbios || exit 1; done
 
 clean:
 	for i in $(EXAMPLES); do $(MAKE) -C $$i clean; done
