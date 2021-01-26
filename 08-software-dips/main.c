@@ -103,6 +103,7 @@ int main(void) {
   static char tmp[20];
 
   ng_cls();
+  init_palette();
 
   ng_center_text_tall(8, 0, "MVS SOFTWARE DIP TEST");
   ng_center_text(10, 0, "loaded from BRAM at startup");
