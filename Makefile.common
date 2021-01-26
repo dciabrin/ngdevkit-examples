@@ -98,11 +98,11 @@ endif
 ifneq ($(ENABLE_MINGW),yes)
 $(call export_path,gngeo)
 gngeo:
-	$(GNGEO) $(SHADEROPTS) --scale 3 --no-resize -i rom $(GAMEROM)
+	$(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --scale 3 --no-resize -i rom $(GAMEROM)
 
 $(call export_path,gngeo-fullscreen)
 gngeo-fullscreen:
-	$(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize -i rom $(GAMEROM)
+	$(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --fullscreen --scale 5 --no-resize -i rom $(GAMEROM)
 
 else
 # MinGW: GnGeo is a native app, so instead of passing path to the
@@ -119,10 +119,10 @@ endif
 endif
 
 gngeo:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --scale 3 --no-resize $(GAMEROM)
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --scale 3 --no-resize $(GAMEROM)
 
 gngeo-fullscreen:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) --fullscreen --scale 5 --no-resize $(GAMEROM))
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --fullscreen --scale 5 --no-resize $(GAMEROM))
 
 endif
 

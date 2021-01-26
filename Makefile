@@ -22,7 +22,8 @@ EXAMPLES = \
 05-scrolling \
 06-sound-adpcma \
 07-attract-and-game \
-08-software-dips
+08-software-dips \
+09-horizontal-sync
 
 include Makefile.config
 

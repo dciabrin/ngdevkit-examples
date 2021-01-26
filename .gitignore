@@ -30,6 +30,7 @@ sprites
 samples
 04-palette/*.bin
 04-palette/*.gif
+09-horizontal-sync/precalc.inc
 
 # Editors tmp
 *~
