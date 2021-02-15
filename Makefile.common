@@ -119,7 +119,7 @@ endif
 endif
 
 gngeo:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --scale 3 --no-resize $(GAMEROM)
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --scale 3 --no-resize $(GAMEROM))
 
 gngeo-fullscreen:
 	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --fullscreen --scale 5 --no-resize $(GAMEROM))
