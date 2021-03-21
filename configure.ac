@@ -24,6 +24,11 @@ AC_ARG_ENABLE([mingw],
 	      AS_IF([test "x$enable_mingw" = xyes], [ENABLE_MINGW="yes"], [ENABLE_MINGW="no"]),
               [ENABLE_MINGW="no"])
 AC_SUBST([ENABLE_MINGW])
+AC_ARG_ENABLE([msys2],
+              AS_HELP_STRING([--enable-msys2], [Look for a Win10-native version of gngeo available in PATH]),
+              AS_IF([test "x$enable_msys2" = xyes], [ENABLE_MSYS2="yes"], [ENABLE_MSYS2="no"]),
+              [ENABLE_MSYS2="no"])
+AC_SUBST([ENABLE_MSYS2])
 
 # ngdevkit-toolkit and ngdevkit can be installed in
 # two different location, so search for executable
@@ -104,6 +109,10 @@ AC_PATH_PROG([convert], [convert])
 AC_PATH_PROG([sox], [sox])
 AC_PATH_PROG([rsync], [rsync])
 
+dnl Right now MSYS2 is a synonymous for MINGW
+if test x"$ENABLE_MSYS2" = x"yes"; then
+  ENABLE_MINGW=yes
+fi
 if test x"$ENABLE_MINGW" = x"yes"; then
 gngeo_name=ngdevkit-gngeo.exe
 else
