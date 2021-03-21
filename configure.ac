@@ -49,10 +49,23 @@ AC_SUBST([ngdkbindir],`pkg-config --variable=bindir ngdevkit`)
 AC_SUBST([ngdksharedir],`pkg-config --variable=sharedir ngdevkit`)
 
 # additional dependencies
-AC_PATH_PROGS([python], [python3 python], [no])
-if test x"$python" = x"no"; then
-  AC_MSG_ERROR([no python detected.])
+AC_ARG_WITH([python],
+            AS_HELP_STRING([--with-python=path], [Absolute path to the python 3 binary]))
+
+if test -n "$with_python"; then
+  python="$with_python"
+  AC_SUBST([python])
+else
+  AC_PATH_PROGS([python], [python3 python], [no])
+  if test x"$python" = x"no"; then
+    AC_MSG_ERROR([no python detected.])
+  fi
 fi
+
+dnl AC_PATH_PROGS([python], [python3 python], [no])
+dnl if test x"$python" = x"no"; then
+dnl   AC_MSG_ERROR([no python detected.])
+dnl fi
 AC_MSG_CHECKING([whether detected python is at least python3])
 [pyver=`$python -c 'import sys; print(sys.version_info[0])'`]
 if test $pyver -ge 3; then
@@ -60,6 +73,32 @@ if test $pyver -ge 3; then
 else
   AC_MSG_ERROR([python major version too old (detected: $pyver, required: 3)])
 fi
+
+dnl Configure how to run ngdevkit's python tools
+AC_MSG_CHECKING([how to call ngdevkit's python tools])
+ngdktool=$ngdkbindir/paltool.py
+shebang=`head -1 $ngdktool | sed -ne 's|^#!\(.*python\S*\)\s*.*|\1|p'`
+if test -n "$shebang" ; then
+    ngdkpython=`which $shebang | grep -i python`
+else
+    ngdkpython=""
+fi
+if test -f "$ngdkpython" && test "$ngdkpython" = "$python" ; then
+  PALTOOL="$ngdkbindir/paltool.py"
+  TILETOOL="$ngdkbindir/tiletool.py"
+  ADPCMTOOL="$ngdkbindir/adpcmtool.py"
+  AC_MSG_RESULT([run directly])
+else
+  PALTOOL="$python $ngdkbindir/paltool.py"
+  TILETOOL="$python $ngdkbindir/tiletool.py"
+  ADPCMTOOL="$python $ngdkbindir/adpcmtool.py"
+  AC_MSG_RESULT([run with $python])
+fi
+AC_SUBST([PALTOOL])
+AC_SUBST([TILETOOL])
+AC_SUBST([ADPCMTOOL])
+
+dnl External tools for the examples
 AC_PATH_PROG([zip], [zip])
 AC_PATH_PROG([convert], [convert])
 AC_PATH_PROG([sox], [sox])

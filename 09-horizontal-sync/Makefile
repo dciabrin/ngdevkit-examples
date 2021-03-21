@@ -39,7 +39,7 @@ main.o: main.c precalc.inc
 	$(M68KGCC) `pkg-config --cflags ngdevkit` -std=gnu99 -fomit-frame-pointer -g -c $< -o $@
 
 precalc.inc: gen-wobble.py
-	./gen-wobble.py 26 70 64 > $@
+	$(PYTHON) ./gen-wobble.py 26 70 64 > $@
 
 # sound driver ROM: ngdevkit's nullsound
 $(MROM): | rom

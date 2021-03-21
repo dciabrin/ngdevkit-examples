@@ -20,9 +20,9 @@ NGDKSHAREDIR=@ngdksharedir@
 NULLSOUNDDIR=$(NGDKSHAREDIR)
 NULLSOUNDSRCDIR=$(NGDKSHAREDIR)/nullsound
 NULLBIOSDIR=$(NGDKSHAREDIR)
-PALTOOL=@ngdkbindir@/paltool.py
-TILETOOL=@ngdkbindir@/tiletool.py
-ADPCMTOOL=@ngdkbindir@/adpcmtool.py
+PALTOOL=@PALTOOL@
+TILETOOL=@TILETOOL@
+ADPCMTOOL=@ADPCMTOOL@
 
 # additional dependencies
 CONVERT=@convert@

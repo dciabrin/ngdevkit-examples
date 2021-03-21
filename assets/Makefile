@@ -31,10 +31,10 @@ talltext-shadow.png: talltext.png
 	$(CONVERT) -size 1024x16 xc:black \( $< -transparent black -fuzz 30% -fill '#0000ff' -opaque white \) -geometry +1+1 -composite  \( $< -transparent black -fuzz 30% -fill '#ffffff' -opaque white -geometry +0+0 \) -composite -colors 16 PNG8:$@
 
 srom.bmp: smalltext.png talltext.png
-	./build-srom.py -s smalltext.png -t talltext.png -b talltext.png -o srom.bmp
+	$(PYTHON) ./build-srom.py -s smalltext.png -t talltext.png -b talltext.png -o srom.bmp
 
 srom-shadow.bmp: smalltext-shadow.png talltext-shadow.png talltext.png
-	./build-srom.py -s smalltext-shadow.png -t talltext-shadow.png -b talltext.png -o srom-shadow.bmp
+	$(PYTHON) ./build-srom.py -s smalltext-shadow.png -t talltext-shadow.png -b talltext.png -o srom-shadow.bmp
 
 rom/s1.bin: srom.bmp | rom
 	$(TILETOOL) --fix -c srom.bmp -o rom/s1.bin
