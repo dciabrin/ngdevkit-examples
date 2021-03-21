@@ -56,7 +56,7 @@ $(MROM): $(HEX) | rom
 #
 # trim and convert input sounds to expected format
 samples/woosh.wav: sfx/woosh.mp3 | samples
-	$(SOX) -V1 $< -c 1 -r 18500 $@ silence 1 0.01 0.1% reverse silence 1 0.07 1% reverse
+	$(SOX) -V1 $< -c 1 -r 18500 $@ silence 1 0.01 0.1% reverse silence 1 0.05 0.5% reverse
 samples/lefthook.wav: sfx/lefthook.mp3 | samples
 	$(SOX) -V1 $< -c 1 -r 18500 $@ silence 1 0.1 1% reverse silence 1 0.2 1% reverse
 samples/lightbulbbreaking.wav: sfx/lightbulbbreaking.mp3 | samples
