@@ -32,6 +32,9 @@ samples
 04-palette/*.gif
 09-horizontal-sync/precalc.inc
 
+# gngeo log file on MinGW/MSYS2
+gngeo_log.txt
+
 # Editors tmp
 *~
 \#*#

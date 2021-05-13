@@ -48,7 +48,7 @@ all: build-gngeo-config
 define GNGEO_DEFAULT_INPUT_SETTINGS =
 # default blitter
 blitter $(if $(findstring yes,$(GNGEO_GLSL)),glsl,soft)
-$(if $(and $(findstring yes,$(GNGEO_GLSL)),$(if $(findstring yes,$(ENABLE_MINGW)),,nomingw)),shaderpath $(GLSL_SHADER_PATH),)
+$(if $(and $(findstring yes,$(GNGEO_GLSL)),$(if $(findstring yes,$(ENABLE_MINGW)),,nomingw)),shaderpath $(SHADER_PATH),)
 $(if $(findstring yes,$(GNGEO_GLSL)),shader $(SHADER),)
 
 # default scale factor
@@ -58,10 +58,14 @@ scale 3
 p1control A=K97,B=K115,C=K113,D=K119,START=K49,COIN=K51,UP=K82,DOWN=K81,LEFT=K80,RIGHT=K79,A=J0B0,B=J0B1,C=J0B2,D=J0B3,START=J0B9,COIN=J0B8,UP=J0a3,DOWN=J0a3,LEFT=J0A0,RIGHT=J0A0
 endef
 
-ifneq ($(ENABLE_MINGW),yes)
-GNGEO_CFG=$(HOME)/.gngeo/ngdevkit-gngeorc
-else
+ifeq ($(ENABLE_MINGW),yes)
 GNGEO_CFG=$(GNGEO_INSTALL_PATH)/conf/ngdevkit-gngeorc
+else
+ifeq ($(ENABLE_MSYS2),yes)
+GNGEO_CFG=$(shell cygpath $(HOMEDRIVE)$(HOMEPATH))/.gngeo/ngdevkit-gngeorc
+else
+GNGEO_CFG=$(HOME)/.gngeo/ngdevkit-gngeorc
+endif
 endif
 
 build-gngeo-config: $(GNGEO_CFG)
