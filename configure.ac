@@ -109,10 +109,6 @@ AC_PATH_PROG([convert], [convert])
 AC_PATH_PROG([sox], [sox])
 AC_PATH_PROG([rsync], [rsync])
 
-dnl Right now MSYS2 is a synonymous for MINGW
-if test x"$ENABLE_MSYS2" = x"yes"; then
-  ENABLE_MINGW=yes
-fi
 if test x"$ENABLE_MINGW" = x"yes"; then
 gngeo_name=ngdevkit-gngeo.exe
 else
@@ -126,6 +122,10 @@ gngeo=$(echo "$gngeo" | sed 's/ /\\ /g')
 if test x"$ENABLE_MINGW" = x"yes"; then
   GNGEO_ABS_PREFIX="`eval dirname ${gngeo}`/"
   GNGEO_PRE="cd \"$GNGEO_ABS_PREFIX\" &&"
+  GNGEO_POST="; cat gngeo_log.txt"
+elif test x"$ENABLE_MSYS2" = x"yes"; then
+  GNGEO_ABS_PREFIX=""
+  GNGEO_PRE=""
   GNGEO_POST="; cat gngeo_log.txt"
 else
   GNGEO_ABS_PREFIX=""
@@ -192,7 +192,13 @@ else
   SHADER_PATH=$GNGEO_SHADER_PATH
   SHADER=noop.glslp
 fi
-AC_MSG_RESULT([$SHADER_PATH/$SHADER])
+# MSYS2: gngeo can only parse native Windows paths
+if test x"$ENABLE_MSYS2" = x"yes"; then
+  SHADER_PATH=`cygpath -w $SHADER_PATH`
+    AC_MSG_RESULT([$SHADER_PATH\\$SHADER])
+else
+  AC_MSG_RESULT([$SHADER_PATH/$SHADER])
+fi
 AC_SUBST([SHADER_PATH])
 AC_SUBST([SHADER])
 
