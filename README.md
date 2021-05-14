@@ -21,21 +21,18 @@ comes with a simple and fast CRT scanline shader :P
 
 ## How to compile the examples
 
+### Installing packages
+
 Prior to using ngdevkit-examples, you must install
 [ngdevkit](ngdevkit) and a couple of additional packages on your
 system. If you're running on Ubuntu or Debian, you can install debian
 packages of ngdevkit and GnGeo with:
 
     add-apt-repository -y ppa:dciabrin/ngdevkit
-    # if you're running Bionic, add the following ppa for PyGame
-    # add-apt-repository ppa:thopiekar/pygame
     apt-get update
     apt-get install -y ngdevkit ngdevkit-gngeo
+    # the remaining packages are only required for the examples
     apt-get install -y pkg-config autoconf automake zip imagemagick sox libsox-fmt-mp3
-
-If you're running on Windows 10, you can also use those pre-built
-deb binaries with [WSL][wsl]. Details on how to install and use them
-are available in [ngdevkit's installation notes for Windows 10][readmewin].
 
 If you're running on macOS, you can install pre-built [brew][brew]
 packages, available in the ngdevkit tap:
@@ -46,8 +43,27 @@ packages, available in the ngdevkit tap:
     brew install ngdevkit ngdevkit-gngeo
     # make sure you use brew's python3 in your shell
     export PATH=/usr/local/opt/python3/bin:$PATH
-    pip3 install pygame==2.0.0.dev6
+    pip3 install pygame
+    # the remaining packages are only required for the examples
     brew install pkg-config autoconf automake zip imagemagick sox
+
+If you're running on Windows 10, you can use native pre-built packages
+for the [MSYS2][msys2] environment. When running in a MSYS2 shell, you
+can install the packages as follows:
+
+    echo -e '\n[ngdevkit]\nSigLevel = PackageOptional\nServer = https://dciabrin.net/msys2-ngdevkit/$arch' >> /etc/pacman.conf
+    pacman -Sy
+    pacman -S mingw-w64-x86_64-ngdevkit mingw-w64-x86_64-ngdevkit-gngeo
+    # the remaining packages are only required for the examples
+    pacman -S autoconf automake make zip mingw-w64-x86_64-imagemagick mingw-w64-x86_64-sox
+
+Additionally, on Windows 10, you also need an [official Python 3
+release for Windows][pywin] from https://www.python.org installed on
+your machine. Assuming you installed it in the default localtion for a
+user called `ngdevkit`, you can proceed and install PyGame with:
+
+    C:/Users/ngdevkit/AppData/Local/Programs/Python/Python39/python -m pip install pygame
+
 
 If you can't install pre-built binary packages, you can clone the
 [ngdevkit](ngdevkit) git repository and follow the build instructions:
@@ -57,11 +73,42 @@ If you can't install pre-built binary packages, you can clone the
     # once done, add ngdevkit in your path with:
     eval $(make shellinit)
 
+
+### Compiling examples
+
 Once everything is installed and ngdevkit is available in your
-path, you can compile all the examples at once with:
+path, you can compile prepare the compilation with:
 
     # import the GLSL CRT shader for GnGeo
     git submodule update --init --recursive
+
+And build all the examples with the following commands if you are running
+Linux:
+
+    cd examples
+    autoreconf -iv
+    ./configure
+    make
+
+For macOS, make sure you use brew's python3 and gmake:
+
+    cd examples
+    export PATH=/usr/local/opt/python3/bin:$PATH
+    autoreconf -iv
+    ./configure
+    gmake
+
+For Windows, you have to build the examples with extra flags and
+pass the location of the external Python 3 installation written
+as an MSYS2 path:
+
+    cd examples
+    # ensure Windows-native binaries are available in PATH
+    export PATH=/mingw64/bin:$PATH
+    autoreconf -I/mingw64/share/aclocal -iv
+    ./configure --enable-msys2 --with-python=/c/Users/ngdevkit/AppData/Local/Programs/Python/Python39/python
+    make
+
     # build all the examples
     autoreconf -iv
     ./configure
@@ -85,7 +132,7 @@ Note: If you're running a recent macOS, [System Integrity Protection][sip]
 may prevent you from running GnGeo from make, so you may need to run
 it from your terminal:
 
-    eval $(make -n gngeo)
+    eval $(gmake -n gngeo)
 
 
 ## Source-level debugging
@@ -134,4 +181,7 @@ License along with this program. If not, see
 
 
 [ngdevkit]: https://github.com/dciabrin/ngdevkit
-[readmewin]: https://github.com/dciabrin/ngdevkit/blob/master/README-mingw.md
+[brew]: https://brew.sh
+[sip]: https://support.apple.com/en-us/HT204899
+[msys2]: https://www.msys2.org
+[pywin]: https://www.python.org/downloads/windows
