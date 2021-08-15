@@ -23,7 +23,8 @@ EXAMPLES = \
 06-sound-adpcma \
 07-attract-and-game \
 08-software-dips \
-09-horizontal-sync
+09-horizontal-sync \
+10-credits-management
 
 include Makefile.config
 
@@ -56,6 +57,7 @@ scale 3
 
 # default key mapping
 p1control A=K97,B=K115,C=K113,D=K119,START=K49,COIN=K51,UP=K82,DOWN=K81,LEFT=K80,RIGHT=K79,A=J0B0,B=J0B1,C=J0B2,D=J0B3,START=J0B9,COIN=J0B8,UP=J0a3,DOWN=J0a3,LEFT=J0A0,RIGHT=J0A0
+p2control A=K103,B=K104,C=K116,D=K117,START=K50,COIN=K52,UP=K105,DOWN=K107,LEFT=K106,RIGHT=K108,A=J1B0,B=J1B1,C=J1B2,D=J1B3,START=J1B9,COIN=J1B8,UP=J1a3,DOWN=J1a3,LEFT=J1A0,RIGHT=J1A0
 endef
 
 ifeq ($(ENABLE_MINGW),yes)
