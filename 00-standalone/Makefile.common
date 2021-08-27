@@ -1,0 +1,129 @@
+# Copyright (c) 2018-2019 Damien Ciabrini
+# This file is part of ngdevkit
+#
+# ngdevkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# ngdevkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with ngdevkit.  If not, see <http://www.gnu.org/licenses/>.
+
+# --- Common configs ---
+
+# When building a ROM, one must reuse the names of an existing
+# cartridge, so that emulator can load them.
+# Here, we arbitrarily reuse names from puzzledp
+MROM=rom/202-m1.m1
+SROM=rom/202-s1.s1
+PROM=rom/202-p1.p1
+VROM=rom/202-v1.v1
+CROM1=rom/202-c1.c1
+CROM2=rom/202-c2.c2
+CROM=$(CROM1) $(CROM2)
+GAMEROM=puzzledp
+CART=rom/$(GAMEROM).zip
+BIOS=rom/neogeo.zip
+
+cart: $(CART)
+
+$(CART):
+	cd rom && for i in *.??; do ln -nsf $$i $${i%.*}.bin; done; \
+	printf "===\nhttps://github.com/dciabrin/ngdevkit\n===" | zip -qz $(GAMEROM).zip *.?? *.bin
+
+nullbios: $(BIOS)
+
+$(BIOS): | rom
+	cp $(NULLBIOSDIR)/neogeo.zip rom
+
+assets:
+	$(MAKE) -C $(ASSETS) all
+
+rom:
+	mkdir $@
+
+clean: common-clean
+
+common-clean:
+	rm -rf *.elf *.o *~ rom
+
+.PHONY: cart nullbios common-clean
+
+
+# --- OS-specific targets ---
+
+# macOS doesn't ship truncate
+ifeq ($(shell uname -s), Darwin)
+TRUNCATE=$(PYTHON) -c 'import sys;open(sys.argv[3],"a").truncate(int(sys.argv[2]))'
+else
+TRUNCATE=truncate
+endif
+
+ASSETS=../assets
+
+# for macOS, may interfere with System Integrity Protection
+define export_path
+$(eval
+ifeq ($(shell uname -s), Darwin)
+$(1): export DYLD_LIBRARY_PATH=$(NGLIBDIR):$(DYLD_LIBRARY_PATH)
+else
+$(1): export LD_LIBRARY_PATH=$(NGLIBDIR):$(LD_LIBRARY_PATH)
+endif
+)
+endef
+
+
+# Emulator targets
+#
+# regular case: pass the rompath to the emulator
+ifeq ($(GNGEO_GLSL), yes)
+SHADEROPTS=-b glsl
+ifneq ($(ENABLE_MINGW),yes)
+ifneq ($(SHADER_PATH),)
+SHADEROPTS+= --shaderpath="$(SHADER_PATH)"
+endif
+endif
+ifneq ($(SHADER),)
+SHADEROPTS+= --shader="$(SHADER)"
+endif
+else
+SHADEROPTS=
+endif
+
+ifneq ($(ENABLE_MINGW),yes)
+$(call export_path,gngeo)
+gngeo:
+	$(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --scale 3 --no-resize -i rom $(GAMEROM)
+
+$(call export_path,gngeo-fullscreen)
+gngeo-fullscreen:
+	$(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --fullscreen --scale 5 --no-resize -i rom $(GAMEROM)
+
+else
+# MinGW: GnGeo is a native app, so instead of passing path to the
+# Linux filesystem, we copy the ROM in the GnGeo directory
+# we also copy any shader config that might be in use
+
+ifneq ($(SHADER),)
+ifneq ($(SHADER),noop.glslp)
+ifneq ($(GLSL_SHADER_PATH),)
+$(GNGEO_INSTALL_PATH)/shaders/$(SHADER): $(GLSL_SHADER_PATH)
+	$(RSYNC) -a $</ $(GNGEO_INSTALL_PATH)/shaders/
+endif
+endif
+endif
+
+gngeo:
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --scale 3 --no-resize $(GAMEROM))
+
+gngeo-fullscreen:
+	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --fullscreen --scale 5 --no-resize $(GAMEROM))
+
+endif
+
+.PHONY: gngeo gngeo-fullscreen
