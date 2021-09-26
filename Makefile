@@ -24,7 +24,8 @@ EXAMPLES = \
 07-attract-and-game \
 08-software-dips \
 09-horizontal-sync \
-10-credits-management
+10-credits-management \
+11-backup-ram
 
 include Makefile.config
 
