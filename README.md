@@ -34,6 +34,14 @@ packages of ngdevkit and GnGeo with:
     # the remaining packages are only required for the examples
     apt-get install -y pkg-config autoconf automake zip imagemagick sox libsox-fmt-mp3
 
+If you are running a Fedora distribution, pre-built packages are
+available in COPR, and can be installed with the following commands:
+
+    dnf copr enable dciabrin/ngdevkit
+    dnf install ngdevkit ngdevkit-gngeo
+    # the remaining packages are only requred for the examples
+    dnf install install pkg-config autoconf zip ImageMagick sox
+
 If you're running on macOS, you can install pre-built [brew][brew]
 packages, available in the ngdevkit tap:
 
