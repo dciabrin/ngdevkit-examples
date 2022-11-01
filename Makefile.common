@@ -18,23 +18,24 @@
 
 # When building a ROM, one must reuse the names of an existing
 # cartridge, so that emulator can load them.
-# Here, we arbitrarily reuse names from puzzledp
-MROM=rom/202-m1.m1
-SROM=rom/202-s1.s1
-PROM=rom/202-p1.p1
-VROM=rom/202-v1.v1
-CROM1=rom/202-c1.c1
-CROM2=rom/202-c2.c2
-CROM=$(CROM1) $(CROM2)
-GAMEROM=puzzledp
-CART=rom/$(GAMEROM).zip
-BIOS=rom/neogeo.zip
+# Here, we arbitrarily defaults to names from puzzledp
+MROM?=rom/202-m1.m1
+SROM?=rom/202-s1.s1
+PROM1?=rom/202-p1.p1
+PROM?=$(PROM1)
+VROM?=rom/202-v1.v1
+CROM1?=rom/202-c1.c1
+CROM2?=rom/202-c2.c2
+CROM?=$(CROM1) $(CROM2)
+GAMEROM?=puzzledp
+CART?=rom/$(GAMEROM).zip
+BIOS?=rom/neogeo.zip
 
 cart: $(CART)
 
 $(CART):
-	cd rom && for i in *.??; do ln -nsf $$i $${i%.*}.bin; done; \
-	printf "===\nhttps://github.com/dciabrin/ngdevkit\n===" | zip -qz $(GAMEROM).zip *.?? *.bin
+	cd rom && for i in `ls -1 | grep -v -e \.bin -e \.zip`; do ln -nsf $$i $${i%.*}.bin; done; \
+	printf "===\nhttps://github.com/dciabrin/ngdevkit\n===" | zip -qz $(GAMEROM).zip `ls -1 | grep -v -e \.zip`
 
 nullbios: $(BIOS)
 
