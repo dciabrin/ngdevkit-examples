@@ -65,27 +65,31 @@ $(ELF):	$(OBJS:%=%.o)
 main.c: sprites/back.pal sprites/forest.pal sprites/front.pal
 
 # sound driver ROM: ngdevkit's nullsound
+MROMSIZE:=131072
 $(MROM): | rom
-	$(Z80SDOBJCOPY) -I ihex -O binary $(NULLSOUNDDIR)/nullsound.ihx $@ --pad-to 131072
+	$(Z80SDOBJCOPY) -I ihex -O binary $(NULLSOUNDDIR)/nullsound.ihx $@ --pad-to $(MROMSIZE)
 
 # sample ROM: empty
 $(VROM): | rom
 	dd if=/dev/zero bs=1024 count=512 of=$@
 
 # sprite ROM C1 C2: parallax layers
+CROMSIZE:=1048576
 $(CROM1): $(ASSETS)/rom/c1.bin sprites/back.c1 sprites/forest.c1 sprites/front.c1 | rom
-	cat $(ASSETS)/rom/c1.bin $(filter %.c1,$^) > $@ && $(TRUNCATE) -s 1048576 $@
+	cat $(ASSETS)/rom/c1.bin $(filter %.c1,$^) > $@ && $(TRUNCATE) -s $(CROMSIZE) $@
 
 $(CROM2): $(ASSETS)/rom/c2.bin sprites/back.c2 sprites/forest.c2 sprites/front.c2 | rom
-	cat $(ASSETS)/rom/c2.bin $(filter %.c2,$^) > $@ && $(TRUNCATE) -s 1048576 $@
+	cat $(ASSETS)/rom/c2.bin $(filter %.c2,$^) > $@ && $(TRUNCATE) -s $(CROMSIZE) $@
 
 # fixed tile ROM: fonts from common assets
+SROMSIZE:=131072
 $(SROM): $(FIX_ASSETS) | rom
-	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s 131072 $@
+	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s $(SROMSIZE) $@
 
 # program ROM
+PROMSIZE:=524288
 $(PROM): $(ELF) | rom
-	$(M68KOBJCOPY) -O binary -S -R .comment $< $@ && dd if=$@ of=$@ conv=notrunc,swab
+	$(M68KOBJCOPY) -O binary -S -R .comment --gap-fill 0xff --pad-to $(PROMSIZE) $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 clean:
 	rm -rf *.gif *.png *.pal *.o *~ $(ELF) tmp.* rom sprites

@@ -37,30 +37,34 @@ $(ELF):	$(OBJS:%=%.o)
 
 
 # sound driver ROM: ngdevkit's nullsound
+MROMSIZE:=131072
 $(MROM): | rom
-	$(Z80SDOBJCOPY) -I ihex -O binary $(NULLSOUNDDIR)/nullsound.ihx $@ --pad-to 131072
+	$(Z80SDOBJCOPY) -I ihex -O binary $(NULLSOUNDDIR)/nullsound.ihx $@ --pad-to $(MROMSIZE)
 
 # sample ROM: empty
 $(VROM): | rom
 	dd if=/dev/zero bs=1024 count=512 of=$@
 
 # sprite ROM C1 C2: logo sprite from common assets
+CROMSIZE:=1048576
 tmp.c1 tmp.c2:
 	$(TILETOOL) --sprite -c $(ASSETS)/gfx/logo.png -o tmp.c1 tmp.c2
 
 $(CROM1): tmp.c1 $(ASSETS)/rom/c1.bin | rom
-	cat $(ASSETS)/rom/c1.bin tmp.c1 > $@ && $(TRUNCATE) -s 1048576 $@
+	cat $(ASSETS)/rom/c1.bin tmp.c1 > $@ && $(TRUNCATE) -s $(CROMSIZE) $@
 
 $(CROM2): $(ASSETS)/rom/c2.bin | rom
-	cat $(ASSETS)/rom/c2.bin tmp.c2 > $@ && $(TRUNCATE) -s 1048576 $@
+	cat $(ASSETS)/rom/c2.bin tmp.c2 > $@ && $(TRUNCATE) -s $(CROMSIZE) $@
 
 # fixed tile ROM: fonts from common assets
+SROMSIZE:=131072
 $(SROM): $(FIX_ASSETS) | rom
-	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s 131072 $@
+	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s $(SROMSIZE) $@
 
 # program ROM
+PROMSIZE:=524288
 $(PROM): $(ELF) | rom
-	$(M68KOBJCOPY) -O binary -S -R .comment $< $@ && dd if=$@ of=$@ conv=notrunc,swab
+	$(M68KOBJCOPY) -O binary -S -R .comment --gap-fill 0xff --pad-to $(PROMSIZE) $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 clean:
 	rm -f *.png *.o *~ $(ELF) tmp.* rom/*.*

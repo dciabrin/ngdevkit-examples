@@ -47,8 +47,9 @@ user_commands.rel: user_commands.s
 nullsound.rel: $(NULLSOUNDSRCDIR)/nullsound.s
 	$(Z80SDAS) -g -l -p -u -I$(NULLSOUNDSRCDIR) -o $@ $<
 
+MROMSIZE:=131072
 $(MROM): $(HEX) | rom
-	$(Z80SDOBJCOPY) -I ihex -O binary $(HEX) $@ --pad-to 131072
+	$(Z80SDOBJCOPY) -I ihex -O binary $(HEX) $@ --pad-to $(MROMSIZE)
 
 
 
@@ -65,21 +66,24 @@ samples/lightbulbbreaking.wav: sfx/lightbulbbreaking.mp3 | samples
 samples/%.adpcma: samples/%.wav | samples
 	$(ADPCMTOOL) -e $< -o $@ -v
 
+VROMSIZE=524288
 $(VROM): $(SAMPLES:%=samples/%.adpcma) | rom
-	cat $(SAMPLES:%=samples/%.adpcma) > $@ && $(TRUNCATE) -s 524288 $@
+	cat $(SAMPLES:%=samples/%.adpcma) > $@ && $(TRUNCATE) -s $(VROMSIZE) $@
 
 
 # sprite ROM C1 C2: unused, common assets
+CROMSIZE:=1048576
 $(CROM1): $(ASSETS)/rom/c1.bin | rom
-	cp $(ASSETS)/rom/c1.bin	$@ && $(TRUNCATE) -s 1048576 $@
+	cp $(ASSETS)/rom/c1.bin	$@ && $(TRUNCATE) -s $(CROMSIZE) $@
 
 $(CROM2): $(ASSETS)/rom/c2.bin | rom
-	cp $(ASSETS)/rom/c2.bin	$@ && $(TRUNCATE) -s 1048576 $@
+	cp $(ASSETS)/rom/c2.bin	$@ && $(TRUNCATE) -s $(CROMSIZE) $@
 
 
 # fixed tile ROM: fonts from common assets
+SROMSIZE:=131072
 $(SROM): $(FIX_ASSETS) | rom
-	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s 131072 $@
+	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s $(SROMSIZE) $@
 
 
 # program ROM
@@ -89,8 +93,9 @@ $(ELF):	$(OBJS:%=%.o)
 %.o: %.c
 	$(M68KGCC) $(NGCFLAGS) -std=gnu99 -fomit-frame-pointer -g -c $< -o $@
 
+PROMSIZE:=524288
 $(PROM): $(ELF) | rom
-	$(M68KOBJCOPY) -O binary -S -R .comment $< $@ && dd if=$@ of=$@ conv=notrunc,swab
+	$(M68KOBJCOPY) -O binary -S -R .comment --gap-fill 0xff --pad-to $(PROMSIZE) $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 
 clean:

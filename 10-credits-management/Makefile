@@ -36,27 +36,31 @@ $(ELF):	$(OBJS:%=%.o)
 	$(M68KGCC) `pkg-config --cflags ngdevkit` -std=c99 -fomit-frame-pointer -g -c $< -o $@
 
 # sound driver ROM: ngdevkit's nullsound
+MROMSIZE:=131072
 $(MROM): | rom
-	$(Z80SDOBJCOPY) -I ihex -O binary $(NULLSOUNDDIR)/nullsound.ihx $@ --pad-to 131072
+	$(Z80SDOBJCOPY) -I ihex -O binary $(NULLSOUNDDIR)/nullsound.ihx $@ --pad-to $(MROMSIZE)
 
 # sample ROM: empty
 $(VROM): | rom
 	dd if=/dev/zero bs=1024 count=512 of=$@
 
 # sprite ROM C1 C2: unused, common assets
+CROMSIZE:=1048576
 $(CROM1): $(ASSETS)/rom/c1.bin | rom
-	cp $(ASSETS)/rom/c1.bin	$@ && $(TRUNCATE) -s 1048576 $@
+	cp $(ASSETS)/rom/c1.bin	$@ && $(TRUNCATE) -s $(CROMSIZE) $@
 
 $(CROM2): $(ASSETS)/rom/c2.bin | rom
-	cp $(ASSETS)/rom/c2.bin	$@ && $(TRUNCATE) -s 1048576 $@
+	cp $(ASSETS)/rom/c2.bin	$@ && $(TRUNCATE) -s $(CROMSIZE) $@
 
 # fixed tile ROM: fonts from common assets
+SROMSIZE:=131072
 $(SROM): $(FIX_ASSETS) | rom
-	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s 131072 $@
+	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s $(SROMSIZE) $@
 
 # program ROM
+PROMSIZE:=524288
 $(PROM): $(ELF) | rom
-	$(M68KOBJCOPY) -O binary -S -R .comment $< $@ && dd if=$@ of=$@ conv=notrunc,swab
+	$(M68KOBJCOPY) -O binary -S -R .comment --gap-fill 0xff --pad-to $(PROMSIZE) $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 clean:
 	rm -f *.png *.o *~ $(ELF) tmp.* rom/*.*
