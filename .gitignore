@@ -32,8 +32,14 @@ samples
 04-palette/*.gif
 09-horizontal-sync/precalc.inc
 
+# generated ROM file
+*.zip
+
 # gngeo log file on MinGW/MSYS2
 gngeo_log.txt
+
+# MAME history files
+history/
 
 # Editors tmp
 *~
