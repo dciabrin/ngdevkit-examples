@@ -25,7 +25,9 @@ EXAMPLES = \
 08-software-dips \
 09-horizontal-sync \
 10-credits-management \
-11-backup-ram
+11-backup-ram \
+12-prom-1mb \
+13-prom-full-2mb \
 
 include Makefile.config
 
