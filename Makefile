@@ -28,6 +28,7 @@ EXAMPLES = \
 11-backup-ram \
 12-prom-1mb \
 13-prom-full-2mb \
+14-prom-bankswitch \
 
 include Makefile.config
 
