@@ -64,6 +64,6 @@ $(PROM): $(ELF) | rom
 	$(M68KOBJCOPY) -O binary -S -R .comment --gap-fill 0xff --pad-to $(PROMSIZE) $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 clean:
-	rm -f *.png *.o *~ $(ELF) tmp.* rom/*.*
+	rm -f *.o *~ $(ELF) tmp.* rom/*.*
 
 .PHONY: clean

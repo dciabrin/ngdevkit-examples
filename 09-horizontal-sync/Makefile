@@ -52,7 +52,7 @@ $(VROM): | rom
 
 # sprite ROM C1 C2: logo sprite from common assets
 tmp.c1 tmp.c2:
-	$(TILETOOL) --sprite -c $(ASSETS)/gfx/logo.png -o tmp.c1 tmp.c2
+	$(TILETOOL) --sprite -c $(ASSETS)/gfx/logo.gif -o tmp.c1 tmp.c2
 
 CROMSIZE:=1048576
 $(CROM1): tmp.c1 $(ASSETS)/rom/c1.bin | rom
@@ -72,6 +72,6 @@ $(PROM): $(ELF) | rom
 	$(M68KOBJCOPY) -O binary -S -R .comment --gap-fill 0xff --pad-to $(PROMSIZE) $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 clean:
-	rm -f *.png *.o *~ $(ELF) tmp.* precalc.inc rom/*.*
+	rm -f *.o *~ $(ELF) tmp.* precalc.inc rom/*.*
 
 .PHONY: clean

@@ -29,31 +29,31 @@ FIX_ASSETS=$(ASSETS)/rom/s1-shadow.bin
 $(ASSETS)/rom/c1.bin $(ASSETS)/rom/s1.bin:
 	$(MAKE) -C $(ASSETS)
 
-sprites/back.png: gfx/country-platform-back.png | sprites
-	$(CONVERT) $^ -crop 384x144+0+16 +repage PNG8:$@
+sprites/back.gif: gfx/country-platform-back.png | sprites
+	$(CONVERT) $^ -crop 384x144+0+16 +repage $@
 
-sprites/back.c1 sprites/back.c2: sprites/back.png
+sprites/back.c1 sprites/back.c2: sprites/back.gif
 	$(TILETOOL) --sprite -c $< -o $@ $(@:%.c1=%).c2
 
-sprites/back.pal: sprites/back.png
+sprites/back.pal: sprites/back.gif
 	$(PALTOOL) $< -o $@
 
-sprites/forest.png: gfx/country-platform-forest.png | sprites
-	$(CONVERT) $^ $^ $^ +append -crop 480x144+0+80 +repage PNG8:$@
+sprites/forest.gif: gfx/country-platform-forest.png | sprites
+	$(CONVERT) $^ $^ $^ +append -crop 480x144+0+80 +repage -background black -flatten $@
 
-sprites/forest.c1 sprites/forest.c2: sprites/forest.png
+sprites/forest.c1 sprites/forest.c2: sprites/forest.gif
 	$(TILETOOL) --sprite -c $< -o $@ $(@:%.c1=%).c2
 
-sprites/forest.pal: sprites/forest.png
+sprites/forest.pal: sprites/forest.gif
 	$(PALTOOL) $< -o $@
 
-sprites/front.png: gfx/country-platform-tiles-example.png | sprites
-	$(CONVERT) $^ $^ +append -crop 384x144+0+80 +repage PNG8:$@
+sprites/front.gif: gfx/country-platform-tiles-example.png | sprites
+	$(CONVERT) $^ $^ +append -crop 384x144+0+80 +repage -background black -flatten $@
 
-sprites/front.c1 sprites/front.c2: sprites/front.png
+sprites/front.c1 sprites/front.c2: sprites/front.gif
 	$(TILETOOL) --sprite -c $< -o $@ $(@:%.c1=%).c2
 
-sprites/front.pal: sprites/front.png
+sprites/front.pal: sprites/front.gif
 	$(PALTOOL) $< -o $@
 
 $(ELF):	$(OBJS:%=%.o)
@@ -92,7 +92,7 @@ $(PROM): $(ELF) | rom
 	$(M68KOBJCOPY) -O binary -S -R .comment --gap-fill 0xff --pad-to $(PROMSIZE) $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 clean:
-	rm -rf *.gif *.png *.pal *.o *~ $(ELF) tmp.* rom sprites
+	rm -rf *.gif *.pal *.o *~ $(ELF) tmp.* rom sprites
 
 sprites:
 	mkdir $@

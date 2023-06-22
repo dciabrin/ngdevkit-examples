@@ -99,7 +99,7 @@ $(PROM): $(ELF) | rom
 
 
 clean:
-	rm -rf samples *.gif *.png *.pal *.adpcma *.o *~ $(ELF) *.lst *.sym *.rel *.ihx *.rst tmp.* rom
+	rm -rf samples *.adpcma *.o *~ $(ELF) *.lst *.sym *.rel *.ihx *.rst tmp.* rom
 
 samples:
 	mkdir $@

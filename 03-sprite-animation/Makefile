@@ -36,13 +36,13 @@ sprites/%.gif: gfx/spr_m_traveler_%_anim.gif | sprites
 	printf "\xff\x00\xff" | dd of=$@ bs=1 seek=13 count=3 conv=notrunc
 
 # prepare the sprites for 64x64, and use same palette for all sprites
-sprites/all.png: $(SPRITES_IMGS)
-	$(CONVERT) -coalesce $^ -append +repage xc:'#ff00ff[64x1024!]' -compose dstover -composite PNG8:$@
+sprites/all.gif: $(SPRITES_IMGS)
+	$(CONVERT) -coalesce $^ -append +repage xc:'#ff00ff[64x1024!]' -compose dstover -compose dstover -fill '#00ffff' -opaque '#000100' -fill '#00ffff' -opaque '#000000' -fill '#181818' -opaque '#00ffff' -fill '#000000' -opaque '#ff00ff' -composite $@
 
-sprites/all.c1 sprites/all.c2: sprites/all.png | sprites
+sprites/all.c1 sprites/all.c2: sprites/all.gif | sprites
 	$(TILETOOL) --sprite -c $< -o $@ $(@:%.c1=%).c2
 
-sprite.pal: sprites/all.png | sprites
+sprite.pal: sprites/all.gif | sprites
 	$(PALTOOL) $< -o $@
 
 $(ELF):	$(OBJS:%=%.o)
@@ -81,7 +81,7 @@ $(PROM): $(ELF) | rom
 	$(M68KOBJCOPY) -O binary -S -R .comment --gap-fill 0xff --pad-to $(PROMSIZE) $< $@ && dd if=$@ of=$@ conv=notrunc,swab
 
 clean:
-	rm -rf *.gif *.png *.pal *.o *~ $(ELF) tmp.* rom sprites
+	rm -rf *.gif *.pal *.o *~ $(ELF) tmp.* rom sprites
 
 sprites:
 	mkdir $@
