@@ -24,9 +24,8 @@ $(CART): $(PROM) $(CROM1) $(CROM2) $(SROM) $(VROM) $(MROM) | rom
 
 OBJS=main
 ELF=rom.elf
-Z80_NULLSOUND_OBJS=nullsound
-Z80_USER_OBJS=user_commands
-HEX=driver.ihx
+Z80_OBJS=user_commands
+HEX=snd_driver.ihx
 SAMPLES=woosh lefthook lightbulbbreaking
 FIX_ASSETS=$(ASSETS)/rom/s1-shadow.bin
 
@@ -38,14 +37,11 @@ $(ASSETS)/rom/c1.bin $(ASSETS)/rom/s1.bin:
 # it consists is the nullsound template, plus specific
 # functions to trigger the configured actions (play samples)
 #
-$(HEX):	nullsound.rel user_commands.rel
-	$(Z80SDLD) -i $@ -u $^
+$(HEX):	user_commands.rel
+	$(Z80SDLD) -b DATA=0xf800 -i $@ $(NGDKZ80LIBDIR)/nullsound.lib $^
 
 user_commands.rel: user_commands.s
-	$(Z80SDAS) -g -l -p -u -I$(NULLSOUNDSRCDIR) -o $@ $<
-
-nullsound.rel: $(NULLSOUNDSRCDIR)/nullsound.s
-	$(Z80SDAS) -g -l -p -u -I$(NULLSOUNDSRCDIR) -o $@ $<
+	$(Z80SDAS) -g -l -p -u -I$(NGDKZ80INCLUDEDIR)/nullsound -o $@ $<
 
 MROMSIZE:=131072
 $(MROM): $(HEX) | rom

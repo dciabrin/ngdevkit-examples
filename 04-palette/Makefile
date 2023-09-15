@@ -51,7 +51,7 @@ main.o: gradients.pal
 # sound driver ROM: ngdevkit's nullsound
 MROMSIZE:=131072
 $(MROM): | rom
-	$(Z80SDOBJCOPY) -I ihex -O binary $(NULLSOUNDDIR)/nullsound.ihx $@ --pad-to $(MROMSIZE)
+	$(Z80SDOBJCOPY) -I ihex -O binary $(NGDKSHAREDIR)/nullsound_driver.ihx $@ --pad-to $(MROMSIZE)
 
 # sample ROM: empty
 $(VROM): | rom

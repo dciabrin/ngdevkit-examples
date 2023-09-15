@@ -18,36 +18,60 @@
 
 ;;; user-specific commands to instantiate the nullsound driver
 ;;; ----------------------------------------------------------
-        .module user_commands
-        .area   CODE (REL)
+        .include "helpers.inc"
+        .area   CODE
 
-;;; commands dependencies
+cmd_jmptable::
+        ;; common/reserved sound commands
+        jp      snd_command_unused
+        jp      snd_command_01_prepare_for_rom_switch
+        jp      snd_command_unused
+        jp      snd_command_03_reset_driver
+        jp      snd_command_04_play_sample_woosh
+        jp      snd_command_05_play_sample_hook
+        jp      snd_command_06_play_sample_break
+        init_unused_cmd_jmptable
+
+
+;;; This ROM contains three sound commands that play
+;;; ADPCM-a samples. The sound commands use nullsound
+;;; to configure the YM2610 and start playback.
 ;;;
-        .include "ym2610.def"
-        .include "nullsound.def"
-        .include "user_commands.def"
-        .include "sfx_adpcma.s"
 
-        ;; [cmd 04][module 0] play ADPCM-A sample [0000..02ff] on channel 1
-        snd_command_request 04, 0, sfx_adpcm_a_play, 0
-snd_command_04_action_config:
+snd_command_04_play_sample_woosh:
+        ld      ix, #adpcm_a_woosh
+        call    snd_adpcm_a_play
+        ret
+
+snd_command_05_play_sample_hook:
+        ld      ix, #adpcm_a_hook
+        call    snd_adpcm_a_play
+        ret
+
+snd_command_06_play_sample_break:
+        ld      ix, #adpcm_a_break
+        call    snd_adpcm_a_play_exclusive
+        ret
+
+
+
+;;; ADPCM-A sample data
+;;;
+adpcm_a_woosh:
         .dw     0x0                     ; sample start addr >> 8
         .dw     0x2                     ; sample stop addr >> 8
-        .db     1                       ; channel 3
+        .db     0                       ; channel 1
         .db     0xdf                    ; l/r output + volume
-
-        ;; [cmd 05][module 0] play ADPCM-A sample [0300..0dff] on channel 1
-        snd_command_request 05, 0, sfx_adpcm_a_play, 0
-snd_command_05_action_config:
+        .db     1                       ; channel 1 (bit)
+adpcm_a_hook:
         .dw     0x3                     ; sample start addr >> 8
         .dw     0xd                     ; sample stop addr >> 8
-        .db     1                       ; channel 3
+        .db     1                       ; channel 2
         .db     0xdf                    ; l/r output + volume
-
-        ;; [cmd 06][module 1] play ADPCM-A sample [0e00..29ff] on channel 2, when not in use
-        snd_command_request 06, 1, sfx_adpcm_a_play, 1
-snd_command_06_action_config:
+        .db     2                       ; channel 2 (bit)
+adpcm_a_break:
         .dw     0xe                     ; sample start addr >> 8
         .dw     0x29                    ; sample stop addr >> 8
-        .db     2                       ; channel 2
+        .db     2                       ; channel 3
         .db     0xdf                    ; l/r output + volume
+        .db     4                       ; channel 3 (bit)

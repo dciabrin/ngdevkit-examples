@@ -16,6 +16,9 @@
 
 AC_INIT([ngdevkit-examples], [0.1])
 
+# This set of examples is meant to be built against this ngdevkit version
+NGDEVKIT_MIN_VERSION=0.3
+
 dnl
 dnl MinGW-specific options
 dnl
@@ -50,8 +53,20 @@ AC_PATH_PROG([ngsdobjcopy], [z80-neogeo-ihx-sdobjcopy])
 
 # ngdevkit location and common flags
 PKG_CHECK_MODULES([ngdevkit],[ngdevkit])
+
+AC_MSG_CHECKING([whether detected ngdevkit version >= ${NGDEVKIT_MIN_VERSION}])
+[ngdevkitver=`pkg-config --modversion ngdevkit`]
+highestver=`(echo ${ngdevkitver}; echo ${NGDEVKIT_MIN_VERSION}) | sort | tail -1`
+if test ${highestver} = ${ngdevkitver} ; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_ERROR([ngdevkit version too old (detected: ${ngdevkitver}, required: ${NGDEVKIT_MIN_VERSION})])
+fi
+
 AC_SUBST([ngdkbindir],`pkg-config --variable=bindir ngdevkit`)
 AC_SUBST([ngdksharedir],`pkg-config --variable=sharedir ngdevkit`)
+AC_SUBST([ngdkz80includedir],`pkg-config --variable=z80includedir ngdevkit`)
+AC_SUBST([ngdkz80libdir],`pkg-config --variable=z80libdir ngdevkit`)
 
 # additional dependencies
 AC_ARG_WITH([python],
