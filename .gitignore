@@ -26,6 +26,7 @@ Makefile.config
 rom
 assets/*.bmp
 assets/*.png
+assets/*.gif
 sprites
 samples
 04-palette/*.bin
