@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Damien Ciabrini
+# Copyright (c) 2019-2023 Damien Ciabrini
 # This file is part of ngdevkit
 #
 # ngdevkit is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ EXAMPLES = \
 12-prom-1mb \
 13-prom-full-2mb \
 14-prom-bankswitch \
+15-sound-adpcmb \
 
 include Makefile.config
 
