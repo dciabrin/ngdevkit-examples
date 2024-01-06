@@ -39,6 +39,7 @@ VROM2=rom/243-v2.v2
 VROM3=rom/243-v3.v3
 VROM4=rom/243-v4.v4
 VROM=$(VROM1) $(VROM2) $(VROM3) $(VROM4)
+VROMTEMPLATE=$(subst 1,X,$(VROM1))
 CROMSIZE:=524288
 CROM1=rom/243-c1.c1
 CROM2=rom/243-c2.c2
@@ -70,7 +71,7 @@ $(ASSETS)/rom/c1.bin $(ASSETS)/rom/s1.bin:
 $(HEX):	user_commands.rel
 	$(Z80SDLD) -b DATA=0xf800 -i $@ $(NGDKZ80LIBDIR)/nullsound.lib $^
 
-user_commands.rel: user_commands.s
+user_commands.rel: user_commands.s samples.inc
 	$(Z80SDAS) -g -l -p -u -I$(NGDKZ80INCLUDEDIR)/nullsound -o $@ $<
 
 MROMSIZE:=131072
@@ -91,12 +92,13 @@ samples/dance.wav: sfx/insect-dance-loop-93865.mp3 | samples
 samples/%.adpcmb: samples/%.wav | samples
 	$(ADPCMTOOL) -b -e $< -o $@ -v
 
-$(VROM1): | rom
-	touch $@ && $(TRUNCATE) -s $(VROMSIZE) $@
-$(VROM2): $(SAMPLES:%=samples/%.adpcmb) | rom
-	cat $(SAMPLES:%=samples/%.adpcmb) > $@ && $(TRUNCATE) -s $(VROMSIZE) $@
-$(VROM3) $(VROM4): | rom
-	touch $@ && $(TRUNCATE) -s $(VROMSIZE) $@
+# ADPCM sample ROMs
+# only target VROM1, vromtool generates all VROMs automatically
+$(VROM1): samples-map.yaml samples.inc | rom
+	$(VROMTOOL) --roms -s $(VROMSIZE) $< -o $(VROMTEMPLATE) -n 4
+
+samples.inc: samples-map.yaml $(SAMPLES:%=samples/%.adpcmb)
+	$(VROMTOOL) --asm -s $(VROMSIZE) $< -o $(VROMTEMPLATE) -m $@
 
 # sprite ROM C1 C2: unused, common assets
 $(CROM1): $(ASSETS)/rom/c1.bin | rom

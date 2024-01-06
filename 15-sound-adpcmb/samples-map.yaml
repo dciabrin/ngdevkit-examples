@@ -1,0 +1,18 @@
+# This file holds references to all the ADPCM samples
+# that are used in this example ROM.
+# It is processed by vromtool.py to assign a position
+# to all samples in the VROM, and generate a series of
+# ASM defines to export offsets to the sound driver.
+#
+# Each entry is either a 'adpcm_a' or 'adpcm_b', and
+# it must include a name and a uri field.
+# uri can either be:
+#   file://XXX to reference a file on disk
+#   data:;base64,XXX to inline ADPCM data
+#
+- adpcm_b:
+    name: beat
+    uri: file://samples/beat.adpcmb
+- adpcm_b:
+    name: dance
+    uri: file://samples/dance.adpcmb

@@ -57,21 +57,30 @@ snd_command_06_play_sample_break:
 
 ;;; ADPCM-A sample data
 ;;;
+        ;; offset of the ADPCM samples in VROM
+        .include "samples.inc"
+
 adpcm_a_woosh:
-        .dw     0x0                     ; sample start addr >> 8
-        .dw     0x2                     ; sample stop addr >> 8
+        .db     WOOSH_START_LSB         ;
+        .db     WOOSH_START_MSB         ; start>>8 in VROM
+        .db     WOOSH_STOP_LSB          ;
+        .db     WOOSH_STOP_MSB          ; stop>>8  in VROM
         .db     0                       ; channel 1
         .db     0xdf                    ; l/r output + volume
         .db     1                       ; channel 1 (bit)
 adpcm_a_hook:
-        .dw     0x3                     ; sample start addr >> 8
-        .dw     0xd                     ; sample stop addr >> 8
+        .db     HOOK_START_LSB          ;
+        .db     HOOK_START_MSB          ; start>>8 in VROM
+        .db     HOOK_STOP_LSB           ;
+        .db     HOOK_STOP_MSB           ; stop>>8  in VROM
         .db     1                       ; channel 2
         .db     0xdf                    ; l/r output + volume
         .db     2                       ; channel 2 (bit)
 adpcm_a_break:
-        .dw     0xe                     ; sample start addr >> 8
-        .dw     0x29                    ; sample stop addr >> 8
+        .db     BREAK_START_LSB         ;
+        .db     BREAK_START_MSB         ; start>>8 in VROM
+        .db     BREAK_STOP_LSB          ;
+        .db     BREAK_STOP_MSB          ; stop>>8  in VROM
         .db     2                       ; channel 3
         .db     0xdf                    ; l/r output + volume
         .db     4                       ; channel 3 (bit)

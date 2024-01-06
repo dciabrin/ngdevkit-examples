@@ -17,7 +17,7 @@
 AC_INIT([ngdevkit-examples], [0.1])
 
 # This set of examples is meant to be built against this ngdevkit version
-NGDEVKIT_MIN_VERSION=0.3
+NGDEVKIT_MIN_VERSION=0.4
 
 dnl
 dnl MinGW-specific options
@@ -107,16 +107,22 @@ if test -f "$ngdkpython" && test "$ngdkpython" = "$python" ; then
   PALTOOL="$ngdkbindir/paltool.py"
   TILETOOL="$ngdkbindir/tiletool.py"
   ADPCMTOOL="$ngdkbindir/adpcmtool.py"
+  VROMTOOL="$ngdkbindir/vromtool.py"
+  FURTOOL="$ngdkbindir/furtool.py"
   AC_MSG_RESULT([run directly])
 else
   PALTOOL="$python $ngdkbindir/paltool.py"
   TILETOOL="$python $ngdkbindir/tiletool.py"
   ADPCMTOOL="$python $ngdkbindir/adpcmtool.py"
+  VROMTOOL="$python $ngdkbindir/vromtool.py"
+  FURTOOL="$python $ngdkbindir/furtool.py"
   AC_MSG_RESULT([run with $python])
 fi
 AC_SUBST([PALTOOL])
 AC_SUBST([TILETOOL])
 AC_SUBST([ADPCMTOOL])
+AC_SUBST([VROMTOOL])
+AC_SUBST([FURTOOL])
 
 dnl External tools for the examples
 AC_PATH_PROG([zip], [zip])

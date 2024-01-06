@@ -40,7 +40,7 @@ $(ASSETS)/rom/c1.bin $(ASSETS)/rom/s1.bin:
 $(HEX):	user_commands.rel
 	$(Z80SDLD) -b DATA=0xf800 -i $@ $(NGDKZ80LIBDIR)/nullsound.lib $^
 
-user_commands.rel: user_commands.s
+user_commands.rel: user_commands.s samples.inc
 	$(Z80SDAS) -g -l -p -u -I$(NGDKZ80INCLUDEDIR)/nullsound -o $@ $<
 
 MROMSIZE:=131072
@@ -62,9 +62,13 @@ samples/lightbulbbreaking.wav: sfx/lightbulbbreaking.mp3 | samples
 samples/%.adpcma: samples/%.wav | samples
 	$(ADPCMTOOL) -e $< -o $@ -v
 
+# ADPCM sample ROM
 VROMSIZE=524288
-$(VROM): $(SAMPLES:%=samples/%.adpcma) | rom
-	cat $(SAMPLES:%=samples/%.adpcma) > $@ && $(TRUNCATE) -s $(VROMSIZE) $@
+$(VROM): samples-map.yaml samples.inc | rom
+	$(VROMTOOL) --roms -s $(VROMSIZE) $< -o $(VROM)
+
+samples.inc: samples-map.yaml $(SAMPLES:%=samples/%.adpcma)
+	$(VROMTOOL) --asm -s $(VROMSIZE) $< -o $(VROM) -m $@
 
 
 # sprite ROM C1 C2: unused, common assets
@@ -95,7 +99,7 @@ $(PROM): $(ELF) | rom
 
 
 clean:
-	rm -rf samples *.adpcma *.o *~ $(ELF) *.lst *.sym *.rel *.ihx *.rst tmp.* rom
+	rm -rf samples samples.inc *.adpcma *.o *~ $(ELF) *.def *.lst *.sym *.rel *.ihx *.rst tmp.* rom
 
 samples:
 	mkdir $@

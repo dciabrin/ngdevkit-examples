@@ -5,6 +5,7 @@
 *.rel
 *.lst
 *.rst
+*.def
 
 # Libraries
 *.a
@@ -29,6 +30,7 @@ assets/*.png
 assets/*.gif
 sprites
 samples
+samples.inc
 04-palette/*.bin
 04-palette/*.gif
 09-horizontal-sync/precalc.inc

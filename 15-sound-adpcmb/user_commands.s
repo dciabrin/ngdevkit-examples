@@ -63,6 +63,10 @@ cmd_jmptable::
 
 ;;; ADPCM-B sample data
 ;;;
+        ;; offset of the ADPCM samples in VROM
+        .include "samples.inc"
+
+;;;
 ;;; Note on sample speed computation, e.g. with adpcm_b_beat_44
 ;;;  . This config plays the ADPCM_B at 44100Hz
 ;;;  . YM2610 playback speed is expressed in Delta-N
@@ -78,50 +82,68 @@ cmd_jmptable::
 ;;;
 
 adpcm_b_beat_44:
-        .dw     0x4000                  ; sample start addr >> 8
-        .dw     0x407e                  ; sample stop addr >> 8
+        .db     BEAT_START_LSB          ;
+        .db     BEAT_START_MSB          ; sample start addr >> 8
+        .db     BEAT_STOP_LSB           ;
+        .db     BEAT_STOP_MSB           ; sample stop addr >> 8
         .dw     0xcb6b                  ; delta-n
         .db     0xc0                    ; l/r output
         .db     0xff                    ; volume
 adpcm_b_beat_33:
-        .dw     0x4000                  ; sample start addr >> 8
-        .dw     0x407e                  ; sample stop addr >> 8
+        .db     BEAT_START_LSB          ;
+        .db     BEAT_START_MSB          ; sample start addr >> 8
+        .db     BEAT_STOP_LSB           ;
+        .db     BEAT_STOP_MSB           ; sample stop addr >> 8
         .dw     0x80e8                  ; delta-n
         .db     0xc0                    ; l/r output
         .db     0xff                    ; volume
 adpcm_b_beat_22:
-        .dw     0x4000                  ; sample start addr >> 8
-        .dw     0x407e                  ; sample stop addr >> 8
+        .db     BEAT_START_LSB          ;
+        .db     BEAT_START_MSB          ; sample start addr >> 8
+        .db     BEAT_STOP_LSB           ;
+        .db     BEAT_STOP_MSB           ; sample stop addr >> 8
         .dw     0x65b5                  ; delta-n
         .db     0xc0                    ; l/r output
         .db     0xff                    ; volume
 adpcm_b_beat_16_5:
-        .dw     0x4000                  ; sample start addr >> 8
-        .dw     0x407e                  ; sample stop addr >> 8
+        .db     BEAT_START_LSB          ;
+        .db     BEAT_START_MSB          ; sample start addr >> 8
+        .db     BEAT_STOP_LSB           ;
+        .db     BEAT_STOP_MSB           ; sample stop addr >> 8
         .dw     0x4c08                  ; delta-n
         .db     0xc0                    ; l/r output
         .db     0xff                    ; volume
 adpcm_b_dance_44:
+        .db     DANCE_START_LSB         ;
+        .db     DANCE_START_MSB         ; sample start addr >> 8
+        .db     DANCE_STOP_LSB          ;
+        .db     DANCE_STOP_MSB          ; sample stop addr >> 8
         .dw     0x407f                  ; sample start addr >> 8
         .dw     0x411c                  ; sample stop addr >> 8
         .dw     0xcb6b                  ; delta-n
         .db     0xc0                    ; l/r output
         .db     0xff                    ; volume
 adpcm_b_dance_33:
-        .dw     0x407f                  ; sample start addr >> 8
-        .dw     0x411c                  ; sample stop addr >> 8
+        .db     DANCE_START_LSB         ;
+        .db     DANCE_START_MSB         ; sample start addr >> 8
+        .db     DANCE_STOP_LSB          ;
+        .db     DANCE_STOP_MSB          ; sample stop addr >> 8
         .dw     0x80e8                  ; delta-n
         .db     0xc0                    ; l/r output
         .db     0xff                    ; volume
 adpcm_b_dance_22:
-        .dw     0x407f                  ; sample start addr >> 8
-        .dw     0x411c                  ; sample stop addr >> 8
+        .db     DANCE_START_LSB         ;
+        .db     DANCE_START_MSB         ; sample start addr >> 8
+        .db     DANCE_STOP_LSB          ;
+        .db     DANCE_STOP_MSB          ; sample stop addr >> 8
         .dw     0x65b5                  ; delta-n
         .db     0xc0                    ; l/r output
         .db     0xff                    ; volume
 adpcm_b_dance_16_5:
-        .dw     0x407f                  ; sample start addr >> 8
-        .dw     0x411c                  ; sample stop addr >> 8
+        .db     DANCE_START_LSB         ;
+        .db     DANCE_START_MSB         ; sample start addr >> 8
+        .db     DANCE_STOP_LSB          ;
+        .db     DANCE_STOP_MSB          ; sample stop addr >> 8
         .dw     0x4c08                  ; delta-n
         .db     0xc0                    ; l/r output
         .db     0xff                    ; volume
