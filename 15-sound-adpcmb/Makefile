@@ -111,7 +111,6 @@ $(CROM3) $(CROM4) $(CROM5) $(CROM6): | rom
 # fixed tile ROM: fonts from common assets
 $(SROM): $(FIX_ASSETS) | rom
 	cat $(FIX_ASSETS) > $@ && $(TRUNCATE) -s $(SROMSIZE) $@
-	touch rom/vs-bios.rom && truncate -s $(SROMSIZE) rom/vs-bios.rom
 
 
 # program ROM
