@@ -30,6 +30,7 @@ EXAMPLES = \
 13-prom-full-2mb \
 14-prom-bankswitch \
 15-sound-adpcmb \
+16-sound-music \
 
 include Makefile.config
 
