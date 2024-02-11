@@ -1,0 +1,8 @@
+# This file holds references to all the ADPCM samples that are used for
+# sound FX in this example ROM.
+# The samples from the music module are referenced in their own sample map.
+#
+# See 06-sound-adpcma for a description of the format of this YAML structure
+- adpcm_a:
+    name: laser
+    uri: file://sfx/laser.adpcma

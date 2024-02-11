@@ -109,6 +109,7 @@ if test -f "$ngdkpython" && test "$ngdkpython" = "$python" ; then
   ADPCMTOOL="$ngdkbindir/adpcmtool.py"
   VROMTOOL="$ngdkbindir/vromtool.py"
   FURTOOL="$ngdkbindir/furtool.py"
+  NSSTOOL="$ngdkbindir/nsstool.py"
   AC_MSG_RESULT([run directly])
 else
   PALTOOL="$python $ngdkbindir/paltool.py"
@@ -116,6 +117,7 @@ else
   ADPCMTOOL="$python $ngdkbindir/adpcmtool.py"
   VROMTOOL="$python $ngdkbindir/vromtool.py"
   FURTOOL="$python $ngdkbindir/furtool.py"
+  NSSTOOL="$python $ngdkbindir/nsstool.py"
   AC_MSG_RESULT([run with $python])
 fi
 AC_SUBST([PALTOOL])
@@ -123,6 +125,7 @@ AC_SUBST([TILETOOL])
 AC_SUBST([ADPCMTOOL])
 AC_SUBST([VROMTOOL])
 AC_SUBST([FURTOOL])
+AC_SUBST([NSSTOOL])
 
 dnl External tools for the examples
 AC_PATH_PROG([zip], [zip])
