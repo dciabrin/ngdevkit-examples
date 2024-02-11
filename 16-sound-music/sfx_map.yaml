@@ -1,0 +1,3 @@
+- adpcm_a:
+    name: laser
+    uri: file://samples/laser.adpcma

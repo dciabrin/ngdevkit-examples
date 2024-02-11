@@ -19,6 +19,7 @@
 ;;; user-specific commands to link this ROM's sound driver
 ;;; ------------------------------------------------------
         .include "helpers.inc"
+        .include "samples.inc"
 
         .area   CODE
 
@@ -38,6 +39,7 @@ cmd_jmptable::
         jp      play_music1
         jp      play_music2
         jp      stop_music
+        jp      sfx_laser
         init_unused_cmd_jmptable
 
 
@@ -59,6 +61,18 @@ play_music2::
         call    snd_stream_play
         ret
 
-starship_battle_nss_stream::
-        .include        "starship_battle_nss.s"
+sfx_laser::
+        ld      ix, #sfx_laser_data
+        call    snd_adpcm_a_play
+        ret
 
+
+sfx_laser_data:
+        .db     LASER_START_LSB, LASER_START_MSB ; start>>8 in VROM
+        .db     LASER_STOP_LSB, LASER_STOP_MSB   ; stop>>8  in VROM
+        .db     4                       ; channel 5
+        .db     0xda                    ; l/r output + volume
+        .db     16                      ; channel 3 (bit)
+
+starship_battle_nss_stream:
+        .include        "starship_battle_nss.s"

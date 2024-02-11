@@ -47,6 +47,8 @@ OBJS=main
 ELF=rom.elf
 FURMODS=starship_battle
 Z80_OBJS=user_commands $(FURMODS:%=%_instruments)
+ADPCMA_SAMPLES=laser
+SAMPLE_MAPS=starship_battle sfx
 HEX=snd_driver.ihx
 
 FIX_ASSETS=$(ASSETS)/rom/s1-shadow.bin
@@ -82,19 +84,27 @@ $(MROM): $(HEX) | rom
 
 # sample ROM
 #
+# trim and convert input sounds to expected format
+samples/laser.wav: sfx/laser-gun-72558.mp3 | samples
+	$(SOX) -V1 $< -c 1 -r 18500 $@ silence 1 0.01 0.1% reverse silence 1 0.05 0.5% reverse trim 0 0.6
+
+samples/%.adpcma: samples/%.wav | samples
+	$(ADPCMTOOL) -e $< -o $@ -v
 
 VROMSIZE=2097152
 
 # only target VROM1, vromtool generates both VROM1 and VROM2
 # TODO check if we need to depend on samples.inc
-$(VROM1): $(FURMODS:%=%_map.yaml) samples.inc | rom
-	$(VROMTOOL) --roms -s $(VROMSIZE) $(FURMODS:%=%_map.yaml) -o $(VROMTEMPLATE) -n 2
+$(VROM1): $(SAMPLE_MAPS:%=%_map.yaml) samples.inc | rom
+	$(VROMTOOL) --roms -s $(VROMSIZE) $(SAMPLE_MAPS:%=%_map.yaml) -o $(VROMTEMPLATE) -n 2
 
-samples.inc: $(FURMODS:%=%_map.yaml)
+samples.inc: $(SAMPLE_MAPS:%=%_map.yaml)
 	$(VROMTOOL) --asm -s $(VROMSIZE) $^ -o $(VROMTEMPLATE) -m $@
 
 %_map.yaml: music/%.fur
 	$(FURTOOL) $< --samples -o $@
+
+sfx_map.yaml: $(ADPCMA_SAMPLES:%=samples/%.adpcma)
 
 # sprite ROM C1 C2: unused, common assets
 CROMSIZE:=2097152

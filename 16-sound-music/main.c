@@ -62,7 +62,7 @@ int main(void) {
     char strcmd[3];
 
     u8 inc = 1;
-    
+
     // Command 3: reset z80 sound driver
     *REG_SOUND = 3;
     ng_cls();
@@ -72,9 +72,10 @@ int main(void) {
     ng_center_text_tall(TOP+6, 0, "Z80 DRIVER SOUND TEST");
     ng_center_text(TOP+10, 0, "left/right to select digit");
     ng_center_text(TOP+11, 0, "up/down to change command");
-    ng_center_text(TOP+12, 0, "button A to play");
-    ng_text(13, TOP+16, 1, " command:");
-        
+    ng_center_text(TOP+13, 1, "button A for music");
+    ng_center_text(TOP+14, 2, "button B for sfx ");
+    ng_text(13, TOP+18, 1, " command:");
+
     for(;;) {
         if (bios_p1change & CNT_LEFT) {
             inc=0x10;
@@ -87,19 +88,23 @@ int main(void) {
         } else if (bios_p1change & CNT_DOWN) {
             cmd-=inc;
         }
-        
+
         sprintf(strcmd, "%02X", cmd);
-        ng_text(23, TOP+16, 2, strcmd);
+        ng_text(23, TOP+18, 2, strcmd);
 
-        ng_text(23, TOP+15, 0, (inc==1)?" -":"- ");
         ng_text(23, TOP+17, 0, (inc==1)?" -":"- ");
+        ng_text(23, TOP+19, 0, (inc==1)?" -":"- ");
 
-        ng_text(22, TOP+16, 0, bios_p1current&A_PRESSED?"<":" ");
-        ng_text(25, TOP+16, 0, bios_p1current&A_PRESSED?">":" ");
+        ng_text(22, TOP+18, 0, bios_p1current&A_PRESSED?"<":" ");
+        ng_text(25, TOP+18, 0, bios_p1current&A_PRESSED?">":" ");
         if (bios_p1change & CNT_A) {
             *REG_SOUND=cmd;
         }
-        
+        if (bios_p1change & CNT_B) {
+            // cmd 7 is laser sound FX in this example VROM
+            *REG_SOUND=7;
+        }
+
         ng_wait_vblank();
     }
     return 0;
