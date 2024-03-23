@@ -39,11 +39,14 @@ CROM=$(CROM1) $(CROM2) $(CROM3) $(CROM4)
 include ../Makefile.common
 $(CART): $(PROM) $(CROM) $(SROM) $(VROM) $(MROM) | rom
 
-
-# music modules for this demo
-MUSICS=music1
+# music modules for this demo, expected to be located in ./music
+# add your musics by defining new `MUSICx` variables and adding
+# values `musicx` in MUSICS.
+# note: do not change the variable names, this will impact macro music_deps
 MUSIC1=starship-battle
-music1-nss.s music1-instruments.s music1-map.yaml: music/$(MUSIC1).fur
+MUSIC2=starship-battle
+MUSICS=music1 music2
+$(foreach m,$(MUSICS),$(eval $(call music_deps,$(m))))
 
 # samples for this demo
 ADPCMA_SAMPLES=laser

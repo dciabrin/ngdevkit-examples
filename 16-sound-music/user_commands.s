@@ -60,8 +60,8 @@ play_music1::
 
 ;;; TODO: add another example stream for SSG
 play_music2::
-        ld      bc, #music1_instruments
-        ld      de, #music1_nss_stream
+        ld      bc, #music2_instruments
+        ld      de, #music2_nss_stream
         call    snd_stream_play
         ret
 

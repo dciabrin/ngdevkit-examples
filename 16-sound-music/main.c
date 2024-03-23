@@ -44,7 +44,12 @@ const u16 clut[][16]= {
     {0x8000, 0x0fff, 0x0a40, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
      0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
     {0x8000, 0x0fff, 0x004a, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
+    {0x8000, 0x0888, 0x0444, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
+    {0x8000, 0x0f00, 0x0800, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
      0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000}
+
 };
 
 void init_palette() {
@@ -56,6 +61,35 @@ void init_palette() {
     *((volatile u16*)0x401ffe)=0x0333;
 }
 
+
+void display_snd_cmd_info(u8 cmd, u8 y) {
+    static const char *unused = "          (unused)          ";
+    static const char *cmds[] = {
+        "(system) prepare MROM switch",
+        "(unused) eye catcher music  ",
+        "(system) sound driver init  ",
+        "  (demo) play demo music #1 ",
+        "  (demo) play demo music #2 ",
+        "     (demo) stop music      ",
+        "     (demo) sound fx #1     ",
+    };
+    const char *str;
+    u8 col;
+    if (cmd == 0 || cmd > 7) {
+        str = unused;
+        col = 3;
+    } else {
+        str = cmds[cmd-1];
+        if (cmd == 1 || cmd == 3) {
+            col = 4;
+        } else if (cmd == 2) {
+            col = 3;
+        } else {
+            col = 0;
+        }
+    }
+    ng_center_text(y, col, str);
+}
 
 int main(void) {
     u8 cmd=4;
@@ -91,6 +125,7 @@ int main(void) {
 
         sprintf(strcmd, "%02X", cmd);
         ng_text(23, TOP+18, 2, strcmd);
+        display_snd_cmd_info(cmd, TOP+20);
 
         ng_text(23, TOP+17, 0, (inc==1)?" -":"- ");
         ng_text(23, TOP+19, 0, (inc==1)?" -":"- ");

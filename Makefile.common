@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Damien Ciabrini
+# Copyright (c) 2018-2024 Damien Ciabrini
 # This file is part of ngdevkit
 #
 # ngdevkit is free software: you can redistribute it and/or modify
@@ -54,6 +54,14 @@ common-clean:
 	rm -rf *.elf *.o *~ rom
 
 .PHONY: cart nullbios common-clean
+
+# nullsound
+
+# music1-nss.s music1-instruments.s music1-map.yaml: music/$(MUSIC1).fur
+define music_deps
+$(1)-nss.s $(1)-instruments.s $(1)-map.yaml: music/$(value $(1:music%=MUSIC%)).fur
+endef
+
 
 
 # --- OS-specific targets ---
