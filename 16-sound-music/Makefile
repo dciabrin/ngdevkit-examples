@@ -72,7 +72,7 @@ $(ASSETS)/rom/c1.bin $(ASSETS)/rom/s1.bin:
 # functions to trigger the configured actions (play samples)
 #
 $(HEX): $(Z80_OBJS:%=%.rel) samples.inc
-	$(Z80SDLD) -b DATA=0xf800 -m1 -i $@ $(NGDKZ80LIBDIR)/nullsound.lib $(Z80_OBJS:%=%.rel)
+	$(Z80SDLD) -b DATA=0xf800 -m1 -w -i $@ $(NGDKZ80LIBDIR)/nullsound.lib $(Z80_OBJS:%=%.rel)
 
 # instruments source files require sample map offsets
 # note: make sound-related generated files explicit targets so

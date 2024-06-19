@@ -25,6 +25,7 @@
 #include <ngdevkit/ng-video.h>
 #include <stdio.h>
 
+#include "snd_commands.h"
 
 /// controller's current state, and change on button press (not release)
 extern u8 bios_p1current;
@@ -68,9 +69,9 @@ void display_snd_cmd_info(u8 cmd, u8 y) {
         "(system) prepare MROM switch",
         "(unused) eye catcher music  ",
         "(system) sound driver init  ",
+        "     (demo) stop music      ",
         "  (demo) play demo music #1 ",
         "  (demo) play demo music #2 ",
-        "     (demo) stop music      ",
         "     (demo) sound fx #1     ",
     };
     const char *str;
@@ -92,7 +93,7 @@ void display_snd_cmd_info(u8 cmd, u8 y) {
 }
 
 int main(void) {
-    u8 cmd=4;
+    u8 cmd=5;
     char strcmd[3];
 
     u8 inc = 1;
