@@ -57,9 +57,8 @@ common-clean:
 
 # nullsound
 
-# music1-nss.s music1-instruments.s music1-map.yaml: music/$(MUSIC1).fur
-define music_deps
-$(1)-nss.s $(1)-instruments.s $(1)-map.yaml: music/$(value $(1:music%=MUSIC%)).fur
+define asm_label
+$(shell echo $(1) | sed -e 's/\.[^.]*//' -e 's/\W/_/g' -e 's/^\([0-9]\)/_\1/g' | tr A-Z a-z)
 endef
 
 
