@@ -29,6 +29,13 @@ from adpcmtool import ym2610_adpcma, ym2610_adpcmb
 VERBOSE = False
 
 
+def tweak_fm_vol(x):
+    return max(0, x-12)
+
+def tweak_s_macro_vol(x):
+    return max(0, x-3)
+
+
 def error(s):
     sys.exit("error: " + s)
 
@@ -78,6 +85,11 @@ class binstream(object):
 
     def uf4(self):
         res = unpack_from("<f", self.data, self.pos)[0]
+        self.pos += 4
+        return res
+
+    def s4(self):
+        res = unpack_from("<i", self.data, self.pos)[0]
         self.pos += 4
         return res
 
@@ -208,6 +220,7 @@ class adpcm_b_sample:
 class pcm_sample:
     name: str = ""
     data: bytearray = field(default=b"", repr=False)
+    loop: bool = False
 
 
 @dataclass
@@ -239,9 +252,22 @@ class adpcm_a_instrument:
 class adpcm_b_instrument:
     name: str = ""
     sample: adpcm_b_sample = None
+    loop: bool = False
 
 
 def read_fm_instrument(bs):
+    # ops order in furnace : OP1, OP3, OP2, OP4
+    ops_bits = [
+        [3], # algo 0: OP4
+        [3], # algo 1: OP4
+        [3], # algo 2: OP4
+        [3], # algo 3: OP4
+        [2, 3], # algo 4: OP2, OP4
+        [1, 2, 3], # algo 5: OP3, OP2, OP4
+        [1, 2, 3], # algo 6: OP3, OP2, OP4
+        [0, 1, 2, 3], # algo 7: OP1, OP3, OP2, OP4
+    ]
+
     ifm = fm_instrument()
     assert bs.u1() == 0xf4  # data for all operators
     ifm.algorithm, ifm.feedback = ubits(bs.u1(), [6, 4], [2, 0])
@@ -264,7 +290,12 @@ def read_fm_instrument(bs):
         op.sustain_level, op.release_rate = ubits(bs.u1(), [7, 4], [3, 0])
         (op.ssg_eg,) = ubits(bs.u1(), [3, 0])
         bs.u1()  # unused
+
         ifm.ops.append(op)
+    # volume tweak
+    for i in ops_bits[ifm.algorithm]:
+        op=ifm.ops[i]
+        op.total_level=tweak_fm_vol(op.total_level)
     return ifm
 
 
@@ -311,6 +342,8 @@ def read_ssg_macro(length, bs):
         header_end = bs.pos
         assert header_end - header_start == header_len
         data = [bs.u1() for i in range(length)]
+        if code == 0: # volume tweak
+            data = [tweak_s_macro_vol(x) for x in data]
         blocks[code_map[code].offset]=data
     assert bs.pos == max_pos
     # pass: create a "empty" waveform property if it's not there
@@ -322,7 +355,7 @@ def read_ssg_macro(length, bs):
         # NOTE: only read a single waveform as we don't allow
         # sequence on this register right now
         wav=blocks[4][0]
-        env, noise, tone = ubits(wav+1,[2,2],[1,1],[0,0]) # +1 to convert to bitfield
+        env, noise, tone = ubits(wav,[2,2],[1,1],[0,0]) # latest furnace version
         # pass: store envelope bit as mode for volume register
         if 3 in blocks:
             new_vols=[env<<4|v for v in blocks[3]]
@@ -418,6 +451,9 @@ def read_instrument(nth, bs, smp):
     if itype in [37, 38]:
         ins = {37: adpcm_a_instrument,
                38: adpcm_b_instrument}[itype]()
+        # ADPCM-B loop information
+        if itype == 38:
+            ins.loop = smp[sample].loop
         if isinstance(smp[sample],pcm_sample):
             # the sample is encoded in PCM, so it has to be converted
             # to be played back on the hardware.
@@ -469,9 +505,9 @@ def read_sample(bs):
     else:
         error("sample '%s' is of unsupported type: %d"%(str(name), stype))
     # assert c4_freq == {5: 18500, 6: 44100}[stype]
-    bs.u1()  # unused play direction
+    bs.u1()  # unused loop direction
     bs.u2()  # unused flags
-    bs.read(8)  # unused looping info
+    loop_start, loop_end = bs.s4(), bs.s4()
     bs.read(16)  # unused rom allocation
     data = bs.read(data_bytes) + bytearray(data_padding)
     # generate a ASM name for the instrument
@@ -479,6 +515,7 @@ def read_sample(bs):
     ins = {5: adpcm_a_sample,
            6: adpcm_b_sample,
            16: pcm_sample}[stype](insname, data)
+    ins.loop = loop_start != -1 and loop_end != -1
     return ins
 
 
@@ -499,13 +536,14 @@ def read_samples(ptrs, bs):
     for p in ptrs:
         bs.seek(p)
         smp.append(read_sample(bs))
+    return smp
+
+def check_for_unused_samples(smp, bs):
     # module might have unused samples, leave them in the output
     # if these are pcm_samples, convert them to adpcm_a to avoid errors
     for i,s in enumerate(smp):
         if isinstance(s, pcm_sample):
             smp[i] = convert_sample(s, 37)
-    return smp
-
 
 def asm_fm_instrument(ins, fd):
     dtmul = tuple(ebit(ins.ops[i].detune, 6, 4) | ebit(ins.ops[i].multiply, 3, 0) for i in range(4))
@@ -602,6 +640,8 @@ def asm_adpcm_instrument(ins, fd):
     print("%s:" % ins.name, file=fd)
     print("        .db     %s_START_LSB, %s_START_MSB  ; start >> 8" % (name, name), file=fd)
     print("        .db     %s_STOP_LSB,  %s_STOP_MSB   ; stop  >> 8" % (name, name), file=fd)
+    if isinstance(ins, adpcm_b_instrument):
+        print("        .db     0x%02x  ; loop" % (ins.loop,), file=fd)
     print("", file=fd)
 
 
@@ -658,8 +698,10 @@ def samples_from_module(modname):
     bs = load_module(modname)
     m = read_module(bs)
     smp = read_samples(m.samples, bs)
+    ins = read_instruments(m.instruments, smp, bs)
+    check_for_unused_samples(smp, bs)
     return smp
-    
+
 
 def main():
     global VERBOSE
@@ -695,6 +737,7 @@ def main():
     m = read_module(bs)
     smp = read_samples(m.samples, bs)
     ins = read_instruments(m.instruments, smp, bs)
+    check_for_unused_samples(smp, bs)
 
     if arguments.output:
         outfd = open(arguments.output, "w")
