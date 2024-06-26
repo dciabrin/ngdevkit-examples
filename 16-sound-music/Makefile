@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with ngdevkit.  If not, see <http://www.gnu.org/licenses/>.
 
-all: cart nullbios
+all:
+	$(MAKE) cart nullbios
 
 include ../Makefile.config
 
@@ -36,7 +37,7 @@ CROM4=rom/047-c4.c4
 CROM=$(CROM1) $(CROM2) $(CROM3) $(CROM4)
 
 
-VROMTOOL=./vromtool.py -v
+VROMTOOL=./vromtool.py
 SOUNDTOOL=./soundtool.py
 FURTOOL=./furtool.py
 
@@ -49,18 +50,31 @@ ELF=rom.elf
 HEX=snd_driver.ihx
 
 
+# --------
+# ASSETS PRE-PROCESSING
+ASSETS_WAVS=4/laser
+
+# trim and convert input sounds to expected format
+wav/4/laser.wav: assets/sfx/laser-gun-72558.mp3
+	mkdir -p $(dir $@) && $(SOX) -V1 $< -c 1 -r 18500 $@ silence 1 0.01 0.1% reverse silence 1 0.05 0.5% reverse trim 0 0.6
+
+
 
 # --------
-# MAIN SOURCES
+# MAIN ASSET SOURCES
 
-MUSICS=$(shell find music -type f -name '*.fur')
-ADPCMS=$(shell find adpcma -type f -name '*.adpcma' -or -name '*.adpcmb')
 OBJS=main
 Z80_OBJS=user_commands
 
+# make the asset list dynamic so that adding files in the source dir triggers a regeneration if needed
+MUSICS=$(shell find music -type f -name '*.fur' 2>/dev/null)
+ADPCMAS=$(shell find wav -type f -name '*.wav' 2>/dev/null | grep -v '/b/' | sed -e 's/^wav/sfx/' -e 's/.wav/.adpcma/')
+ADPCMBS=$(shell find wav -type f -name '*.wav' 2>/dev/null | grep '/b/' | sed -e 's/^wav/sfx/' -e 's/.wav/.adpcmb/')
+
+
 
 # --------
-# GENERATED FILES
+# GENERATED FILES AND ASSETS
 
 # instruments data and compiled music (NSS) data from all musics in this ROM
 Z80_INSTR_OBJS=$(MUSICS:music/%.fur=instruments-%)
@@ -75,7 +89,7 @@ SFX_MAP=sfx-map.yaml
 SOUND_MAP=$(MUSIC_MAP) $(SFX_MAP)
 
 # sample offsets file, based on all sound assets in this ROM 
-SAMPLES_INC=samples.inc
+SAMPLES_INC:=samples.inc
 
 # sound command table and implementation, based on all sound assets in this ROM
 COMMANDS_INC=snd_commands.inc
@@ -85,13 +99,32 @@ COMMANDS_H=snd_commands.h
 
 GENERATED=$(SAMPLES_INC) $(COMMANDS_INC) $(COMMANDS_H) $(Z80_SOUND_SRCS)
 
+# generate wav and adpcm assets for this demo before the generated maps and headers
+$(SAMPLES_INC) $(COMMANDS_INC) $(COMMANDS_H) $(SOUND_MAP): wav
+
 generated: $(SOUND_MAP) $(GENERATED)
 
 clean-generated:
-	rm -f $(GENERATED)
+	rm -f $(GENERATED) instruments-*.{s,rel,lst} nss-*.{s,rel,lst}
 
 all: generated
 clean: clean-generated
+
+
+
+# initial creation of the wav directory and associated ADPCM sample map if not present
+wav:
+	mkdir $@ && $(MAKE) $(ASSETS_WAVS:%=wav/%.wav) && $(MAKE) adpcma adpcmb && $(MAKE) $(SFX_MAP)
+
+# manual regeneration of ADPCM samples
+adpcma:
+	adpcmas=`find wav -type f -name '*.wav' | grep -v '/b/' | sed -e 's/^wav/sfx/' -e 's/.wav/.adpcma/'`; \
+        if [ -n "$$adpcmas" ]; then $(MAKE) $$adpcmas; fi
+
+adpcmb:
+	adpcmbs=`find wav -type f -name '*.wav' | grep '/b/' | sed -e 's/^wav/sfx/' -e 's/.wav/.adpcmb/'`; \
+        if [ -n "$$adpcmbs" ]; then $(MAKE) $$adpcmbs; fi
+
 
 
 # --------
@@ -106,26 +139,22 @@ main.o: $(COMMANDS_H)
 # TARGETS FOR GENERATED FILES
 
 $(COMMANDS_INC): $(SOUND_MAP)
-	$(SOUNDTOOL) -z -s $^ -o $@
+	$(SOUNDTOOL) -z -s $(SOUND_MAP) -o $@
 
 $(SAMPLES_INC): $(SOUND_MAP)
-	$(VROMTOOL) --asm -s $(VROMSIZE) $^ -o $(VROMTEMPLATE) -m $@
+	$(VROMTOOL) --asm -s $(VROMSIZE) $(SOUND_MAP) -o $(VROMTEMPLATE) -m $@
 
 nss-%.s: music/%.fur
 	$(NSSTOOL) -v $< -n $(call asm_label,$(@)) -o $@
 
-instruments-%.s: music/%.fur
-	$(FURTOOL) $^ --instruments -n $(call asm_label,$(@)) -m samples.inc -o $@
+instruments-%.s: music/%.fur $(SAMPLES_INC)
+	$(FURTOOL) $< --instruments -n $(call asm_label,$(@)) -m $(SAMPLES_INC) -o $@
 
-# NOTE: make NSS generated files explicit targets so that make does not
-# consider them as intermediate files and delete them at the end of the run
-instruments-%.rel: instruments-%.s nss-%.s $(SAMPLES_INC)
-
-$(SFX_MAP): $(ADPCMS)
-	$(SOUNDTOOL) -g $^ -o $@
+$(SFX_MAP): $(ADPCMAS) $(ADPCMBS)
+	$(SOUNDTOOL) -g $(ADPCMAS) $(ADPCMBS) -o $@
 
 $(MUSIC_MAP): $(MUSICS)
-	$(SOUNDTOOL) -g $^ -o $@
+	$(SOUNDTOOL) -g $(MUSICS) -o $@
 
 
 FIX_ASSETS=$(ASSETS)/rom/s1-shadow.bin
@@ -151,22 +180,18 @@ $(MROM): $(HEX) | rom
 	$(Z80SDOBJCOPY) -I ihex -O binary $(HEX) $@ --pad-to $(MROMSIZE)
 
 
-
 # sample ROM
 #
-# trim and convert input sounds to expected format
-sfx/laser.wav: sfx/laser-gun-72558.mp3
-	$(SOX) -V1 $< -c 1 -r 18500 $@ silence 1 0.01 0.1% reverse silence 1 0.05 0.5% reverse trim 0 0.6
-
-sfx/%.adpcma: sfx/%.wav
-	$(ADPCMTOOL) -e $< -o $@ -v
+sfx/%.adpcma: wav/%.wav
+	mkdir -p $(dir $@) && $(ADPCMTOOL) -e $< -o $@ -v
 
 VROMSIZE=2097152
 # only target VROM1, vromtool generates both VROM1 and VROM2
 $(VROM1): $(SOUND_MAP) | rom
 	$(VROMTOOL) --roms -s $(VROMSIZE) $(SOUND_MAP) -o $(VROMTEMPLATE) -n 2
-$(VROM2):
+$(VROM2): | rom
 	touch $@
+
 
 # sprite ROM C1 C2: unused, common assets
 CROMSIZE:=2097152
@@ -193,7 +218,7 @@ $(ELF):	$(OBJS:%=%.o)
 	$(M68KGCC) $(NGCFLAGS) -std=gnu99 -fomit-frame-pointer -g -c $< -o $@
 
 $(COMMANDS_H): $(SOUND_MAP)
-	$(SOUNDTOOL) -c -s $^ -o $@
+	$(SOUNDTOOL) -c -s $(SOUND_MAP) -o $@
 
 PROMSIZE:=1048576
 $(PROM1): $(ELF) | rom
@@ -203,6 +228,9 @@ $(PROM2): | rom
 
 
 clean:
-	rm -rf *.gif *.png *.pal sfx/*.adpcma *.o *~ $(ELF) *.lst *.sym *.rel *.ihx *.rst tmp.* rom *.def *.map
+	rm -rf *.gif *.png *.pal *.o *~ $(ELF) *.lst *.sym *.rel *.ihx *.rst tmp.* rom *.def *.map
+
+# sfx:
+# 	mkdir $@
 
 .PHONY: clean
