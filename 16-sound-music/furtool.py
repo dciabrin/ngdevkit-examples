@@ -30,10 +30,10 @@ VERBOSE = False
 
 
 def tweak_fm_vol(x):
-    return max(0, x-12)
+    return max(0, x)
 
 def tweak_s_macro_vol(x):
-    return max(0, x-3)
+    return max(0, x)
 
 
 def error(s):

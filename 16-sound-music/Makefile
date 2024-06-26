@@ -40,6 +40,7 @@ CROM=$(CROM1) $(CROM2) $(CROM3) $(CROM4)
 VROMTOOL=./vromtool.py
 SOUNDTOOL=./soundtool.py
 FURTOOL=./furtool.py
+NSSTOOL=./nsstool.py -c0123456789d
 
 # --------
 # ROM names and common targets
@@ -67,9 +68,11 @@ OBJS=main
 Z80_OBJS=user_commands
 
 # make the asset list dynamic so that adding files in the source dir triggers a regeneration if needed
-MUSICS=$(shell find music -type f -name '*.fur' 2>/dev/null)
-ADPCMAS=$(shell find wav -type f -name '*.wav' 2>/dev/null | grep -v '/b/' | sed -e 's/^wav/sfx/' -e 's/.wav/.adpcma/')
-ADPCMBS=$(shell find wav -type f -name '*.wav' 2>/dev/null | grep '/b/' | sed -e 's/^wav/sfx/' -e 's/.wav/.adpcmb/')
+MUSICS=$(shell find music/ -type f -name '*.fur' 2>/dev/null)
+ADPCMAS=$(shell find wav/ -type f -name '*.wav' 2>/dev/null | grep -v '/b/' | sed -e 's/^wav/sfx/' -e 's/.wav/.adpcma/')
+ADPCMBS=$(shell find wav/ -type f -name '*.wav' 2>/dev/null | grep '/b/' | sed -e 's/^wav/sfx/' -e 's/.wav/.adpcmb/')
+# ADPCMAS=$(shell find sfx/ -type f -name '*.adpcma' 2>/dev/null)
+# ADPCMBS=$(shell find sfx/ -type f -name '*.adpcmb' 2>/dev/null)
 
 
 

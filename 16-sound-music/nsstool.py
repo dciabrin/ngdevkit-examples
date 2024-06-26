@@ -38,17 +38,29 @@ def dbg(s):
         print(s, file=sys.stderr)
 
 
+# def tweak_fm_vol(x):
+#     return max(0, x-6)
+
+# def tweak_s_vol(x):
+#     return max(0, x-6)
+
+# def tweak_a_vol(x):
+#     return max(0, x-8)
+
+# def tweak_b_vol(x):
+#     return max(0, x-64)
+
 def tweak_fm_vol(x):
-    return max(0, x-12)
+    return x
 
 def tweak_s_vol(x):
-    return max(0, x-3)
+    return x
 
 def tweak_a_vol(x):
-    return max(0, x-12)
+    return x
 
 def tweak_b_vol(x):
-    return max(0, x-128)
+    return x
 
 
 
