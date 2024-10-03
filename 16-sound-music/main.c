@@ -103,13 +103,13 @@ typedef struct _selection {
 } selection_t;
 
 selection_t selections[] = {
-    // nullsound
-    {"COMMAND", 15, 3, 1, _SND_CMD_BASE_GENERATED-1},
     // musics
-    {"MUSIC", 19, MUSIC_CMD_START, MUSIC_CMD_START, MUSIC_CMD_END},
-    {"level", 21, 15, 0, 15},
+    {"MUSIC", 15, MUSIC_CMD_START, MUSIC_CMD_START, MUSIC_CMD_END},
+    {"level", 17, 15, 0, 15},
     // sfx
-    {"SFX", 24, SFX_CMD_START, SFX_CMD_START, SFX_CMD_END}
+    {"SFX", 20, SFX_CMD_START, SFX_CMD_START, SFX_CMD_END},
+    // nullsound
+    {"COMMAND", 24, 3, 1, _SND_CMD_BASE_GENERATED-1}
 };
 
 
