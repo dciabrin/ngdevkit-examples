@@ -58,7 +58,7 @@ common-clean:
 # nullsound
 
 define asm_label
-$(shell echo $(1) | sed -e 's/\.[^.]*//' -e 's/\W/_/g' -e 's/^\([0-9]\)/_\1/g' | tr A-Z a-z)
+$(shell echo $(1) | sed -e 's/\.[^.]*//' -e 's/[^a-zA-Z0-9_]/_/g' -e 's/^\([0-9]\)/_\1/g' | tr A-Z a-z)
 endef
 
 
