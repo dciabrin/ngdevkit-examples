@@ -64,7 +64,7 @@ Z80_OBJS=user_commands
 
 # make the asset list dynamic so that adding files in the source dir triggers a regeneration if needed
 # TODO split assets management into a dedicated makefile
-MUSICS=$(shell find musics/ -type f -name '*.fur' 2>/dev/null)
+MUSICS=$(shell find -L musics -type f -name '*.fur' 2>/dev/null)
 
 
 # --------
