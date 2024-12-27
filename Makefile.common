@@ -37,6 +37,36 @@ $(CART):
 	cd rom && for i in `ls -1 | grep -v -e \.bin -e \.zip`; do ln -nsf $$i $${i%.*}.bin; done; \
 	printf "===\nhttps://github.com/dciabrin/ngdevkit\n===" | zip -qz $(GAMEROM).zip `ls -1 | grep -v -e \.zip`
 
+
+PRG=cdrom/$(NAME).prg
+SPR=cdrom/$(NAME).spr
+FIX=cdrom/$(NAME).fix
+PCM=cdrom/$(NAME).pcm
+Z80=cdrom/$(NAME).z80
+ABS=cdrom/abs.txt
+BIB=cdrom/bib.txt
+CPY=cdrom/cpy.txt
+
+ISO=$(NAME).iso
+CHD=$(NAME).chd
+
+chd: $(CHD)
+
+$(ISO):
+	$(MKISOFS) -iso-level 1 -input-charset iso8859-1 -V "$(ISO_VOLUME)" -o $@ cdrom/*
+
+$(CHD): $(ISO)
+	$(CHDMAN) createcd -f -o $@ -i $^
+
+$(ABS):
+	echo QWJzdHJhY3RlZCBieSBTTksgY29ycG9yYXRpb24a | base64 -d > $@
+$(BIB):
+	echo QmlibGlvZ3JhcGhpY2VkIGJ5IFNOSyBjb3Jwb3JhdGlvbho= | base64 -d > $@
+$(CPY):
+	echo Q29weXJpZ2h0IGJ5IFNOSyBjb3Jwb3JhdGlvbho= | base64 -d > $@
+
+
+
 nullbios: $(BIOS)
 
 $(BIOS): | rom
@@ -58,7 +88,7 @@ common-clean:
 # nullsound
 
 define asm_label
-$(shell echo $(1) | sed -e 's/\.[^.]*//' -e 's/[^a-zA-Z0-9_]/_/g' -e 's/^\([0-9]\)/_\1/g' | tr A-Z a-z)
+$(shell echo $(1) | sed -e 's/\.[^.]*//' -e 's/\W/_/g' -e 's/^\([0-9]\)/_\1/g' | tr A-Z a-z)
 endef
 
 
@@ -124,6 +154,12 @@ mame:
 
 mame-fullscreen:
 	$(MAME) -noautosave -skip_gameinfo -rp rom $(GAMEROM)
+
+mamecd:
+	$(MAME) -w -resolution $(MAME_RES_WIN) -noautosave -rp rom neocdz -cdrom $(CHD)
+
+mamecd-fullscreen:
+	$(MAME) -noautosave -rp rom neocdz -cdrom $(CHD)
 
 else
 # MinGW: GnGeo is a native app, so instead of passing path to the
