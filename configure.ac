@@ -133,9 +133,18 @@ AC_SUBST([SOUNDTOOL])
 
 dnl External tools for the examples
 AC_PATH_PROGS([make], [gmake make], [no])
+AS_IF([test x"${make}" = x"no"],[AC_MSG_ERROR([Please install make before configuring.])])
+AC_MSG_CHECKING([whether ${make} is at least GNU Make 4])
+makever=`${make} --version | sed -n 's/GNU Make \(.*\)/\1/p'`
+if sh -c "test '$makever' '>' 4 -o '$makever' = 4"; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_ERROR([make version too old for building these examples (detected: $makever, required: 4)])
+fi
+
 AC_PATH_PROG([pkgconfig], [pkg-config])
 AC_PATH_PROG([zip], [zip])
-AC_PATH_PROG([convert], [magick])
+AC_PATH_PROGS([convert], [magick convert])
 AC_PATH_PROG([sox], [sox])
 AC_PATH_PROG([rsync], [rsync])
 
