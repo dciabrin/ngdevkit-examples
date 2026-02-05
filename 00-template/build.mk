@@ -35,7 +35,10 @@ $(CART): $(VROM1) $(VROM2) $(VROM3) $(VROM4)
 
 # for convenience, we ensure than the initial `make` always builds the
 # generated files _before_ the cartridge target, even with parallel builds
-cart: $(BUILDDIR)/.generated .WAIT $(CART)
+# (NOTE: do not use .WAIT yet as it's only available starting GNU Make 4.4)
+cart:
+	@ if [ ! -f $(BUILDDIR)/.generated ]; then $(MAKE) $(BUILDDIR)/.generated; fi && \
+	$(MAKE) --no-print-directory $(CART)
 
 $(CART):
 	cd $(ROM) && for i in `ls -1 | grep -v -e \.bin -e \.zip`; do ln -nsf $$i $${i%.*}.bin; done; \
