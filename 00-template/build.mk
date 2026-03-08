@@ -188,7 +188,7 @@ clean:
 distclean:
 	rm -rf build
 	$(MAKE) clean
-	find setup -mindepth 1 -maxdepth 1 -type d -print | xargs -i -r -n1 $(MAKE) -C {} distclean
+	find setup -mindepth 1 -maxdepth 1 -type d -print | xargs -I{} -r -n1 $(MAKE) -C {} distclean
 
 
 .PHONY: clean distclean
