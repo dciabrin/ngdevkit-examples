@@ -15,17 +15,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with ngdevkit.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import struct
 import os
 import sys
 import argparse
 from random import randint
 
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
-import pygame
+from PIL import Image
 
 # Tiles position for the original boot text
 # https://wiki.neogeodev.org/index.php?title=Eyecatcher
@@ -50,14 +46,13 @@ def blit_msg(dst, src, string, all_tiles):
             tile *= 8
             xpos = tile % 2048;
             ypos = (tile // 2048) * 8;
-            dst.blit(src, (xpos, ypos), area = (ord(letter)*8, row, 8, 8))
+            (xsrc, ysrc) = (ord(letter)*8, row)
+            tmp = src.crop((xsrc, ysrc, xsrc+8, ysrc+8))
+            dst.paste(tmp, (xpos, ypos))
         row+=8
 
 
 def main():
-    pygame.init()
-    pygame.display.init()
-
     parser = argparse.ArgumentParser(
         description='Build common Fixed and Sprite ROMs for all examples.')
     parser.add_argument('-s', '--small', metavar='FILENAME', type = str,
@@ -74,35 +69,41 @@ def main():
                         help='output image for fix-tile ROM file')
 
     arguments = parser.parse_args()
-
-    # load the images and make sure they share the same palette
-    # for the blit to keep pixel values intact
-    dst = pygame.Surface((2048, 40), depth = 8)
-    smalltxt = pygame.image.load(arguments.small)
-    talltxt = pygame.image.load(arguments.tall)
-    biostxt = pygame.image.load(arguments.bios)
-    # print(len(smalltxt.get_palette()))
-    # print(len(talltxt.get_palette()))
-    # sys.exit(0)
-    pal = smalltxt.get_palette()
-    smalltxt.set_palette(pal[:16])
-    talltxt.set_palette(pal[:16])
-    biostxt.set_palette(pal[:16])
-    dst.set_palette(pal[:16])
+    dst = Image.new("P", (2048, 40))
+    smalltxt = Image.open(arguments.small, "r")
+    talltxt = Image.open(arguments.tall, "r")
+    biostxt = Image.open(arguments.bios, "r")
+    assert(smalltxt.mode == 'P')
+    assert(talltxt.mode == 'P')
+    assert(biostxt.mode == 'P')
+    assert(smalltxt.palette.mode == 'RGB')
+    pal = smalltxt.palette.palette
+    if len(pal) > 16 * 3:
+        pal = pal[: 16 * 3]
+    elif len(pal) < 16 * 3:
+        pad = (16 * 3) - len(pal)
+        pal = pal + bytes([0]*pad)
+    smalltxt.putpalette(pal[:16])
+    talltxt.putpalette(pal[:16])
+    biostxt.putpalette(pal[:16])
+    dst.putpalette(pal[:16])
     # Small and tall text tiles
-    dst.blit(smalltxt, (0,0))
-    dst.blit(talltxt, (0,8))
-    dst.blit(talltxt, (0,24))
+    dst.paste(smalltxt, (0,0))
+    dst.paste(talltxt, (0,8))
+    dst.paste(talltxt, (0,24))
     # Inject a new message
     blit_msg(dst, biostxt, "16-BIT POWERED ", MAX_330_MEGA)
     blit_msg(dst, biostxt, "GAME DEVELOPMENT", PRO_GEAR_SPEC)
     # Some tiles need to be empty no matter what
-    dst.blit(dst, (ord('@')*8, 16), area = (0, 0, 8, 8))
-    dst.blit(dst, (ord('{')*8, 0), area = (0, 0, 8, 8))
-    dst.blit(dst, (0xff*8, 16), area = (0, 0, 8, 8))
+    zero = dst.crop((0, 0, 8, 8))
+    dst.paste(zero, (ord('@')*8, 16))
+    dst.paste(zero, (ord('{')*8, 0))
+    dst.paste(zero, (0xff*8, 16))
+    dst.save(arguments.output)
 
-    pygame.image.save(dst, arguments.output)
 
+# TODO: use PIL image and tiletool object API to allow the missing
+# tiles to be re-used by users for their game
 
 if __name__ == '__main__':
     main()

@@ -47,11 +47,11 @@ packages, available in the ngdevkit tap:
 
     # If you haven't done it yet, make sure XCode is installed first
     sudo xcode-select --install
+    # If needed, init brew and its environment variables
+    eval $(/opt/homebrew/bin/brew shellenv)
+    # install ngdevkit
     brew tap dciabrin/ngdevkit
     brew install ngdevkit ngdevkit-gngeo
-    # make sure you use brew's python3 in your shell
-    export PATH=/usr/local/opt/python3/bin:$PATH
-    pip3 install pygame
     # the remaining packages are only required for the examples
     brew install pkg-config autoconf automake zip imagemagick sox
 
@@ -100,9 +100,8 @@ For macOS, make sure you use brew's python3 and gmake:
     gmake
 
 For Windows, make sure you shell uses the ucrt64 subsystem. Older versions
-of this repo assumed you used mingw64, which is now deprecated. Also,
-python3 and pygame are now autoconfigured, so the examples can be
-build with the following commands:
+of this repo assumed you used mingw64, which is now deprecated. The examples
+can be build with the following commands:
 
     # make sure you are using the UCRT64 subsystem
     MSYSTEM=UCRT64 /usr/bin/bash
