@@ -43,10 +43,10 @@ talltext-shadow.gif: talltext.gif
 	$(CONVERT) -size 1024x16 xc:black \( $< -transparent black -fuzz 30% -fill '#ffffff' -opaque white \) -geometry +1+1 -composite  \( $< -transparent black -fuzz 30% -fill '#ff0000' -opaque white -geometry +0+0 \) -composite -colors 16 $@
 
 srom.bmp: smalltext.gif talltext.gif
-	$(PYTHON) ./build-srom.py 2>/dev/null -s smalltext.gif -t talltext.gif -b talltext.gif -o srom.bmp
+	$(PYTHON) ./build-srom.py -s smalltext.gif -t talltext.gif -b talltext.gif -o srom.bmp
 
 srom-shadow.bmp: smalltext-shadow.gif talltext-shadow.gif talltext.gif
-	$(PYTHON) ./build-srom.py 2>/dev/null -s smalltext-shadow.gif -t talltext-shadow.gif -b talltext.gif -o srom-shadow.bmp
+	$(PYTHON) ./build-srom.py -s smalltext-shadow.gif -t talltext-shadow.gif -b talltext.gif -o srom-shadow.bmp
 
 rom/s1.bin: srom.bmp | rom
 	$(TILETOOL) --fix -c srom.bmp -o rom/s1.bin
