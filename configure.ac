@@ -96,33 +96,38 @@ else
 fi
 
 dnl Configure how to run ngdevkit's python tools
+AC_MSG_CHECKING([whether ngdevkit's tools are in path])
+[testpaltool=`which paltool.py`]
+if test $? -eq 0; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_ERROR([paltool.py not found in PATH])
+fi
+
 AC_MSG_CHECKING([how to call ngdevkit's python tools])
-ngdktool=$ngdkbindir/paltool.py
-shebang=`head -1 $ngdktool | sed -ne 's|^#!\(.*python\S*\)\s*.*|\1|p'`
-if test -n "$shebang" ; then
-    ngdkpython=`which $shebang | grep -i python`
+ngdktools_prefix=`dirname ${testpaltool}`
+if test -n "$with_python"; then
+   dnl run tools with a custom python environment
+   dnl we can't rely on ngdkbindir to locate tools' real path
+   dnl because brew specifically install them in a different libexecdir,
+   dnl and create wrappers to those scripts. If we detect such
+   dnl wrappers, rely on pkg-config to find the real path
+   if head -1 $testpaltool | grep -q -v python; then
+     ngdktools_prefix="$ngdkbindir"
+   else
+     ngdktools_prefix="$python $ngdktools_prefix"
+   fi
+   AC_MSG_RESULT([run with $python])
 else
-    ngdkpython=""
+   AC_MSG_RESULT([directly])
 fi
-if test -f "$ngdkpython" && test "$ngdkpython" = "$python" ; then
-  PALTOOL="$ngdkbindir/paltool.py"
-  TILETOOL="$ngdkbindir/tiletool.py"
-  ADPCMTOOL="$ngdkbindir/adpcmtool.py"
-  VROMTOOL="$ngdkbindir/vromtool.py"
-  FURTOOL="$ngdkbindir/furtool.py"
-  NSSTOOL="$ngdkbindir/nsstool.py"
-  SOUNDTOOL="$ngdkbindir/soundtool.py"
-  AC_MSG_RESULT([run directly])
-else
-  PALTOOL="$python $ngdkbindir/paltool.py"
-  TILETOOL="$python $ngdkbindir/tiletool.py"
-  ADPCMTOOL="$python $ngdkbindir/adpcmtool.py"
-  VROMTOOL="$python $ngdkbindir/vromtool.py"
-  FURTOOL="$python $ngdkbindir/furtool.py"
-  NSSTOOL="$python $ngdkbindir/nsstool.py"
-  SOUNDTOOL="$python $ngdkbindir/soundtool.py"
-  AC_MSG_RESULT([run with $python])
-fi
+PALTOOL="$ngdktools_prefix/paltool.py"
+TILETOOL="$ngdktools_prefix/tiletool.py"
+ADPCMTOOL="$ngdktools_prefix/adpcmtool.py"
+VROMTOOL="$ngdktools_prefix/vromtool.py"
+FURTOOL="$ngdktools_prefix/furtool.py"
+NSSTOOL="$ngdktools_prefix/nsstool.py"
+SOUNDTOOL="$ngdktools_prefix/soundtool.py"
 AC_SUBST([PALTOOL])
 AC_SUBST([TILETOOL])
 AC_SUBST([ADPCMTOOL])
