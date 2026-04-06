@@ -32,6 +32,7 @@ EXAMPLES = \
 15-sound-adpcmb \
 16-sound-music \
 17-hello-c++ \
+18-memory-card \
 
 include config.mk
 
