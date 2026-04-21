@@ -67,20 +67,19 @@ int main(void) {
     ng_center_text(TOP+7, 0, "   ADPCM-A SAMPLES   ");
 
     ng_text_tall(6, TOP+11, 1, "CHANNEL 1");
-    ng_text(6, TOP+13, 0, " play on");
-    ng_text(6, TOP+14, 0, " pressed");
-    ng_text(6, TOP+19, 1, "A woosh:");
-    ng_text(6, TOP+21, 1, "B  kick:");
+    ng_text(4, TOP+13, 0, "press to play");
+    ng_text(6, TOP+15, 1, "A woosh:");
 
     ng_text_tall(24, TOP+11, 2, "CHANNEL 2");
-    ng_text(23, TOP+13, 0, "play until");
-    ng_text(24, TOP+14, 0, "finished");
-    ng_text(23, TOP+19, 2, "C break: ");
+    ng_text(22, TOP+13, 0, "press to play");
+    ng_text(24, TOP+15, 2, "B kick:");
+    ng_text(22, TOP+19, 0, "uninterrupted");
+    ng_text(23, TOP+21, 2, "C break: ");
 
     for(;;) {
-        ng_text(15, TOP+19, 1, bios_p1current&A_PRESSED?"1":"0");
-        ng_text(15, TOP+21, 1, bios_p1current&B_PRESSED?"1":"0");
-        ng_text(32, TOP+19, 2, bios_p1current&C_PRESSED?"1":"0");
+        ng_text(15, TOP+15, 1, bios_p1current&A_PRESSED?"1":"0");
+        ng_text(32, TOP+15, 2, bios_p1current&B_PRESSED?"1":"0");
+        ng_text(32, TOP+21, 2, bios_p1current&C_PRESSED?"1":"0");
 
         // trigger cmds in in the sound driver, based on input
         if (bios_p1change & A_PRESSED) {

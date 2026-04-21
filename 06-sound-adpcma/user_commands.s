@@ -81,6 +81,6 @@ adpcm_a_break:
         .db     BREAK_START_MSB         ; start>>8 in VROM
         .db     BREAK_STOP_LSB          ;
         .db     BREAK_STOP_MSB          ; stop>>8  in VROM
-        .db     2                       ; channel 3
+        .db     1                       ; channel 2
         .db     0xdf                    ; l/r output + volume
-        .db     4                       ; channel 3 (bit)
+        .db     2                       ; channel 2 (bit)
