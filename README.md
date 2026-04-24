@@ -2,7 +2,7 @@
 
 
 ngdevkit-examples is a collection of Neo-Geo programs that can be
-built with [ngdevkit](ngdevkit), the open source software development
+built with [ngdevkit][ngdevkit], the open source software development
 kit for the Neo-Geo hardware.
 
 The examples in this repository go from a simple hello world, to
@@ -24,7 +24,7 @@ comes with a simple and fast CRT scanline shader :P
 ### Installing packages
 
 Prior to using ngdevkit-examples, you must install
-[ngdevkit](ngdevkit) and a couple of additional packages on your
+[ngdevkit][ngdevkit] and a couple of additional packages on your
 system. If you're running on Ubuntu or Debian, you can install debian
 packages of ngdevkit and GnGeo with:
 
@@ -66,10 +66,11 @@ as follows:
     pacboy -Sy
     pacboy -S ngdevkit:u ngdevkit-gngeo:u
     # the remaining packages are only required for the examples
-    pacboy -S autoconf automake make zip imagemagick:u sox:u
+    pacman -S autoconf automake make zip
+    pacboy -S imagemagick:u sox:u
 
 If you can't install pre-built binary packages, you can clone the
-[ngdevkit](ngdevkit) git repository and follow the build instructions:
+[ngdevkit][ngdevkit] git repository and follow the build instructions:
 
     git clone https://github.com/dciabrin/ngdevkit
     # build the devkit according to your system
@@ -121,7 +122,8 @@ test the compiled example and run GnGeo from the makefile:
 
 GnGeo will automatically enable the GLSL pixel shader if OpenGL
 is available on your system and detected during the configure
-step. For more info, look at the [common makefile](Makefile.common).
+step. For more info, look at the sub-makefile [`emu.mk`][emu_mk] that is
+present in every example directory.
 
 Note: If you're running a recent macOS, [System Integrity Protection][sip]
 may prevent you from running GnGeo from make, so you may need to run
@@ -176,6 +178,7 @@ License along with this program. If not, see
 
 
 [ngdevkit]: https://github.com/dciabrin/ngdevkit
+[emu_mk]: 00-template/emu.mk
 [brew]: https://brew.sh
 [sip]: https://support.apple.com/en-us/HT204899
 [msys2]: https://www.msys2.org
