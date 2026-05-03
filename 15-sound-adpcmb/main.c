@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023 Damien Ciabrini
+ * Copyright (c) 2020-2026 Damien Ciabrini
  * This file is part of ngdevkit-examples
  *
  * ngdevkit is free software: you can redistribute it and/or modify
@@ -59,12 +59,22 @@ void init_palette() {
 }
 
 
+// UI config
 #define TOP 10
 #define MENUTOP 16
 #define MENULEFT 13
+
+// Number of ADPCM-B samples in this demo
 #define SAMPLES 8
-#define BASE_OFFSET 3
+
+// The base offset points to a "Stop ADPCM-B" function in this sound driver
+#define BASE_OFFSET 4
+
+// The driver in this example contains a series of commands for playing the
+// demo ADPM-B samples, an another series for playing th same samples
+// in "loop" mode.
 #define LOOP_OFFSET (BASE_OFFSET+SAMPLES)
+
 
 int main(void) {
     // Command 3: reset z80 sound driver

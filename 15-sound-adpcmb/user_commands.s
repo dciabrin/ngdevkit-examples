@@ -36,6 +36,7 @@ cmd_jmptable::
         jp      snd_command_unused
         jp      snd_command_03_reset_driver
         ;; sound commands for this ROM
+        jp      stop_b
         jp      play_beat_22
         jp      play_beat_16_5
         jp      play_beat_33
@@ -59,7 +60,9 @@ cmd_jmptable::
 ;;; sample at various playback speed and with/without looping.
 ;;;
 
-
+stop_b:
+        call    snd_adpcm_b_stop
+        ret
 
 ;;; ADPCM-B sample data
 ;;;
