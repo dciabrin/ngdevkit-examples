@@ -6,9 +6,11 @@ SCALE_WIN?=3
 SCALE_FULL?=5
 
 MAME?=mame
-MAME_RES_WIN=$(shell echo $$(($(SCALE_WIN)*320))x$$(($(SCALE_WIN)*224)))
-
 GNGEO?=ngdevkit-gngeo
+
+#
+# GNGEO CONFIGURATIONS
+#
 
 ifeq ($(GNGEO_GLSL), yes)
 SHADEROPTS=-b glsl
@@ -24,47 +26,42 @@ else
 SHADEROPTS=
 endif
 
-ifneq ($(ENABLE_MINGW),yes)
+ifeq ($(FULLSCREEN),)
+GNGEO_RESOLUTION_FLAGS=--scale $(SCALE_WIN)
 $(call export_path,gngeo)
-gngeo:
-	$(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --scale $(SCALE_WIN) --no-resize -i $(ROM) $(GAMEROM)
-
-$(call export_path,gngeo-fullscreen)
-gngeo-fullscreen:
-	$(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --fullscreen --scale $(SCALE_FULL) --no-resize -i $(ROM) $(GAMEROM)
-
-mame:
-	$(MAME) -w -resolution $(MAME_RES_WIN) -noautosave -skip_gameinfo -rp $(ROM) $(GAMEROM)
-
-mame-fullscreen:
-	$(MAME) -noautosave -skip_gameinfo -rp $(ROM) $(GAMEROM)
-
 else
-# MinGW: GnGeo is a native app, so instead of passing path to the
-# Linux filesystem, we copy the $(ROM) in the GnGeo directory
-# we also copy any shader config that might be in use
-
-ifneq ($(SHADER),)
-ifneq ($(SHADER),noop.glslp)
-ifneq ($(GLSL_SHADER_PATH),)
-$(GNGEO_INSTALL_PATH)/shaders/$(SHADER): $(GLSL_SHADER_PATH)
-	$(RSYNC) -a $</ $(GNGEO_INSTALL_PATH)/shaders/
-endif
-endif
+GNGEO_RESOLUTION_FLAGS=--scale $(SCALE_FULL)
 endif
 
-gngeo:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --scale $(SCALE_WIN) --no-resize $(GAMEROM))
+$(call export_path,gngeo)
+gngeo gngeo-aes:
+	$(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) $(GNGEO_RESOLUTION_FLAGS) --no-resize --system home -i $(ROM) -d $(ROM)/gngeo_data.zip $(GAMEROM)
 
-gngeo-fullscreen:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && (cd $(GNGEO_INSTALL_PATH) && $(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) --fullscreen --scale $(SCALE_FULL) --no-resize $(GAMEROM))
+$(call export_path,gngeo-mvs)
+gngeo-mvs:
+	$(GNGEO) $(SHADEROPTS) $(EXTRAOPTS) $(GNGEO_RESOLUTION_FLAGS) --no-resize --system arcade -i $(ROM) -d $(ROM)/gngeo_data.zip $(GAMEROM)
 
-mame:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && ($(MAME) -w -resolution $(MAME_RES_WIN) -noautosave -skip_gameinfo -rp $(ROM) $(GAMEROM))
+.PHONY: gngeo gngeo-aes gngeo-mvs
 
-mame-fullscreen:
-	cp $(CART) $(BIOS) $(GNGEO_INSTALL_PATH)/roms && ($(MAME) -noautosave -skip_gameinfo -rp $(ROM) $(GAMEROM))
 
+#
+# MAME CONFIGURATIONS
+#
+
+# MAME_MEMCARD_FLAGS=-memc memcard.mc
+
+ifeq ($(FULLSCREEN),)
+MAME_RESOLUTION_FLAGS=-w -resolution $(shell echo $$(($(SCALE_WIN)*320))x$$(($(SCALE_WIN)*224)))
+$(call export_path,gngeo)
+else
+MAME_RESOLUTION_FLAGS=-now -resolution $(shell echo $$(($(SCALE_FULL)*320))x$$(($(SCALE_FULL)*224)))
 endif
 
-.PHONY: gngeo gngeo-fullscreen
+mame-mvs:
+	$(MAME) $(MAME_RESOLUTION_FLAGS) -noautosave -skip_gameinfo -hash $(ROM) -rp $(ROM) neogeo $(MAME_MEMCARD_FLAGS) -cart1 $(GAMEROM:%.zip=%)
+
+mame mame-aes:
+	$(MAME) $(MAME_RESOLUTION_FLAGS) -noautosave -skip_gameinfo -hash $(ROM) -rp $(ROM) aes $(MAME_MEMCARD_FLAGS) -cart $(GAMEROM:%.zip=%)
+
+
+.PHONY: mame mame-aes mame-mvs

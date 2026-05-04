@@ -20,11 +20,13 @@
 # TODO bail out if undefined
 BUILDDIR?=build
 
-all: rom/s1-shadow.bin rom/s1.bin rom/c1.bin
+all: rom/s1-shadow.bin rom/s1.bin rom/c1.bin base-sound-driver.ihx ngdevkit-eye-catcher.lib
 
 include ../../config.mk
 
 all:
+	cp base-sound-driver.ihx ../../$(BUILDDIR)/assets
+	cp ngdevkit-eye-catcher.lib ../../$(BUILDDIR)/assets
 	cp rom/s1.bin ../../$(BUILDDIR)/assets/base-srom-text.fix
 	cp rom/s1-shadow.bin ../../$(BUILDDIR)/assets/base-srom-text-shadow.fix
 	cp rom/c1.bin ../../$(BUILDDIR)/assets/base-crom-logo.c1
@@ -59,8 +61,30 @@ rom/c1.bin rom/c2.bin: | rom
 	(dd bs=64 count=14 if=tmp.c1; dd bs=64 skip=15 if=tmp.c1; dd bs=64 count=197 if=/dev/zero) 2>/dev/null | cat >rom/c1.bin; \
 	(dd bs=64 count=14 if=tmp.c2; dd bs=64 skip=15 if=tmp.c2; dd bs=64 count=197 if=/dev/zero) 2>/dev/null | cat >rom/c2.bin
 
+# Base sound driver, to let the BIOS boot the hardware
+
+samples.inc:
+	touch $@
+
+nss-ngdevkit.s: music/ngdevkit.fur
+	$(NSSTOOL) -z -n nss_ngdevkit $< -o $@
+
+instruments-ngdevkit.s: music/ngdevkit.fur samples.inc
+	$(FURTOOL) $< --instruments -n instruments_ngdevkit -o $@
+
+%.rel: %.s
+	$(Z80SDAS) -g -l -p -u -I$(NGZ80INCLUDEDIR)/nullsound -I. -o $@ $<
+
+# the lib below can be reused by the user's sound driver to embed ngdevkit's attract music.
+ngdevkit-eye-catcher.lib: eye-catcher.rel instruments-ngdevkit.rel nss-ngdevkit.rel
+	cat $^ > $@
+
+base-sound-driver.ihx: ngdevkit-eye-catcher.lib base-sound-driver.rel
+	$(Z80SDLD) -b DATA=0xf800 -m -w -i $@ $(NGZ80LIBDIR)/nullsound.lib $^
+
+
 clean distclean:
-	rm -f *.gif tmp.* *.bmp *~
+	rm -f instruments-*.s nss-*.s samples.inc *.ihx *.lib *.lst *.rel *.map *.gif tmp.* *.bmp *~
 	rm -rf rom
 
 rom:

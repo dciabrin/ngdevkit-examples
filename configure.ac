@@ -17,7 +17,7 @@
 AC_INIT([ngdevkit-examples], [0.2])
 
 # This set of examples is meant to be built against this ngdevkit version
-NGDEVKIT_MIN_VERSION=0.4
+NGDEVKIT_MIN_VERSION=0.5
 
 dnl
 dnl MinGW-specific options
@@ -32,6 +32,11 @@ AC_ARG_ENABLE([msys2],
               AS_IF([test "x$enable_msys2" = xyes], [ENABLE_MSYS2="yes"], [ENABLE_MSYS2="no"]),
               [ENABLE_MSYS2="no"])
 AC_SUBST([ENABLE_MSYS2])
+
+AC_ARG_WITH([aes-bios],
+            AS_HELP_STRING([--with-aes-bios=path], [Absolute path to the AES bios file to use]))
+AC_ARG_WITH([mvs-bios],
+            AS_HELP_STRING([--with-mvs-bios=path], [Absolute path to the MVS bios file to use]))
 
 # ngdevkit-toolkit and ngdevkit can be installed in
 # two different location, so search for executable
@@ -128,6 +133,7 @@ VROMTOOL="$ngdktools_prefix/vromtool.py"
 FURTOOL="$ngdktools_prefix/furtool.py"
 NSSTOOL="$ngdktools_prefix/nsstool.py"
 SOUNDTOOL="$ngdktools_prefix/soundtool.py"
+ROMTOOL="$ngdktools_prefix/romtool.py"
 AC_SUBST([PALTOOL])
 AC_SUBST([TILETOOL])
 AC_SUBST([ADPCMTOOL])
@@ -135,6 +141,25 @@ AC_SUBST([VROMTOOL])
 AC_SUBST([FURTOOL])
 AC_SUBST([NSSTOOL])
 AC_SUBST([SOUNDTOOL])
+AC_SUBST([ROMTOOL])
+
+AC_MSG_CHECKING([AES BIOS file to use for running examples])
+if test -n "$with_aes_bios"; then
+   AES_BIOS="$with_aes_bios"
+else
+   AES_BIOS="\$(NGSHAREDIR)/aes.zip"
+fi
+AC_SUBST([AES_BIOS])
+AC_MSG_RESULT([$AES_BIOS])
+AC_MSG_CHECKING([MVS BIOS file to use for running examples])
+if test -n "$with_mvs_bios"; then
+   MVS_BIOS="$with_mvs_bios"
+else
+   MVS_BIOS="\$(NGSHAREDIR)/neogeo.zip"
+fi
+AC_SUBST([MVS_BIOS])
+AC_MSG_RESULT([$MVS_BIOS])
+
 
 dnl External tools for the examples
 AC_PATH_PROGS([make], [gmake make], [no])
@@ -189,6 +214,16 @@ if test x"$gngeo" != x""; then
     fi
     AC_SUBST([GNGEO_INSTALL_PATH])
   fi
+
+  AC_MSG_CHECKING([ngdevkit-gngeo data file])
+  gngeo_data=`(eval $GNGEO_PRE $gngeo ""  forcefail $GNGEO_POST) | sed -ne 's/^DATAFILE = \(.*\)$/\1/p' | head -1`
+  if test -n "$gngeo_data" && test -f "${GNGEO_ABS_PREFIX}$gngeo_data"; then
+    AC_MSG_RESULT([$gngeo_data])
+    GNGEO_DATA=$gngeo_data
+  else
+    AC_MSG_ERROR([not found])
+  fi
+  AC_SUBST([GNGEO_DATA])
 
   AC_MSG_CHECKING([whether ngdevkit-gngeo is built with GLSL shader blitter])
   (eval $GNGEO_PRE $gngeo -b help $GNGEO_POST) | grep -q -w '^glsl'

@@ -24,9 +24,34 @@ BUILDDIR?=$(call err,BUILDDIR)
 ROM?=$(call err,ROM)
 
 
+# CART_TARGETS
+# In order to build a cartridge, one must build various targets:
+#  - build the archive that holds the cartridge's contents (e.g. zip)
+#  - build a hash file that the emulator can understand to boot the cartridge
+#
+# Different emulators expect different input format, so build the supported
+# format below.
+
+# Zip cartridge file
+CART_TARGETS+=$(CART_ZIP)
+CART_ZIP?=$(ROM)/$(GAMEROM).zip
+
+# MAME hash file
+CART_TARGETS+=$(HASH_MAME)
+HASH_MAME?=$(ROM)/neogeo.xml
+$(HASH_MAME): $(CART_ZIP)
+	$(ROMTOOL) -b hash -f mame -p $(PROM1) $(PROM2) -c $(CROM1) $(CROM2) $(CROM3) $(CROM4) $(CROM5) $(CROM6) $(CROM7) $(CROM8) -v $(VROM1) $(VROM2) $(VROM3) $(VROM4) -s $(SROM1) -m $(MROM1) -n $(GAMEROM) -l "$(GAMETITLE)" -o $@
+
+# GnGeo hash file plus emulator's skin data (this is a single file in GnGeo)
+CART_TARGETS+=$(HASH_GNGEO)
+HASH_GNGEO?=$(ROM)/gngeo_data.zip
+$(HASH_GNGEO): $(CART_ZIP)
+	$(ROMTOOL) -b hash -f gngeo -p $(PROM1) $(PROM2) -c $(CROM1) $(CROM2) $(CROM3) $(CROM4) $(CROM5) $(CROM6) $(CROM7) $(CROM8) -v $(VROM1) $(VROM2) $(VROM3) $(VROM4) -s $(SROM1) -m $(MROM1) -n $(GAMEROM) -l "$(GAMETITLE)" -x gngeo.data=$(GNGEO_DATA) -o $@
+
+
+CART?=$(CART_ZIP)
 # A cartrige is made of one or several chips, as defined in rom.mk
 # add all possible dependencies below (undefined chips are just ignored)
-CART?=$(ROM)/$(GAMEROM).zip
 $(CART): $(PROM1) $(PROM2)
 $(CART): $(MROM1)
 $(CART): $(CROM1) $(CROM2) $(CROM3) $(CROM4) $(CROM5) $(CROM6) $(CROM7) $(CROM8)
@@ -38,11 +63,10 @@ $(CART): $(VROM1) $(VROM2) $(VROM3) $(VROM4)
 # (NOTE: do not use .WAIT yet as it's only available starting GNU Make 4.4)
 cart:
 	@ if [ ! -f $(BUILDDIR)/.generated ]; then $(MAKE) $(BUILDDIR)/.generated; fi && \
-	$(MAKE) --no-print-directory $(CART)
+	$(MAKE) --no-print-directory $(CART_TARGETS)
 
-$(CART):
-	cd $(ROM) && for i in `ls -1 | grep -v -e \.bin -e \.zip`; do ln -nsf $$i $${i%.*}.bin; done; \
-	printf "===\nhttps://github.com/dciabrin/ngdevkit\n===" | zip -qz $(GAMEROM).zip `ls -1 | grep -v -e \.zip`
+$(CART_ZIP):
+	$(ROMTOOL) -b cartridge -f zip -p $(PROM1) $(PROM2) -c $(CROM1) $(CROM2) $(CROM3) $(CROM4) $(CROM5) $(CROM6) $(CROM7) $(CROM8) -v $(VROM1) $(VROM2) $(VROM3) $(VROM4) -s $(SROM1) -m $(MROM1) -n $(GAMEROM) -x "zip.comment=$(echo -e '===\nNGDEVKIT example ROM\nhttps://github.com/dciabrin/ngdevkit\n===')" -o $@
 
 $(BUILDDIR) $(ROM):
 	mkdir -p $@ && touch $@
@@ -171,10 +195,15 @@ endif
 # -----------------------------------
 # Build rules for setting up a BIOS ROM for the generated game ROM
 # note: by default, use nullbios to avoid any external dependency
-BIOSROM?=$(NGSHAREDIR)/neogeo.zip
-bios: $(ROM)/$(notdir $(BIOSROM))
-$(ROM)/$(notdir $(BIOSROM)): | $(ROM)
-	cp $(BIOSROM) $@
+AES_BIOS?=$(NGSHAREDIR)/aes.zip
+$(ROM)/$(notdir $(AES_BIOS)): $(AES_BIOS) | $(ROM)
+	cp $< $@
+
+MVS_BIOS?=$(NGSHAREDIR)/neogeo.zip
+$(ROM)/$(notdir $(MVS_BIOS)): $(MVS_BIOS) | $(ROM)
+	cp $< $@
+
+bios: $(ROM)/$(notdir $(AES_BIOS)) $(ROM)/$(notdir $(MVS_BIOS))
 
 .PHONY: bios
 

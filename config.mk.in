@@ -31,6 +31,7 @@ VROMTOOL=@VROMTOOL@
 FURTOOL=@FURTOOL@
 NSSTOOL=@NSSTOOL@
 SOUNDTOOL=@SOUNDTOOL@
+ROMTOOL=@ROMTOOL@
 
 # ngdevkit build flags
 NGCFLAGS=`$(PKGCONFIG) --cflags ngdevkit`
@@ -42,6 +43,10 @@ NGZ80LIBDIR=`$(PKGCONFIG) --variable=z80libdir ngdevkit`
 # directory for dependencies (nullsound, nullbios)
 NGSHAREDIR=$(shell $(PKGCONFIG) --variable=sharedir ngdevkit)
 
+# ROM files to use
+AES_BIOS=@AES_BIOS@
+MVS_BIOS=@MVS_BIOS@
+
 # additional dependencies
 CONVERT=@convert@
 
@@ -51,6 +56,7 @@ RSYNC=@rsync@
 GNGEO=@gngeo@
 
 # GnGeo config
+GNGEO_DATA=@GNGEO_DATA@
 GNGEO_GLSL=@GNGEO_GLSL@
 GNGEO_SHADER_PATH=@GNGEO_SHADER_PATH@
 GLSL_SHADER_PATH=@GLSL_SHADER_PATH@

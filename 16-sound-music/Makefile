@@ -36,6 +36,10 @@ include config.mk
 
 # This defines the layout of your game cartridge
 # You can customize it to match your requirements
+# Name of the rom file created
+GAMEROM=16_sound_music
+# Game title, long description
+GAMETITLE=Music playback API
 include rom.mk
 
 # All the generic build targets (68k, Z80, assets, run)
@@ -98,6 +102,7 @@ SOUND_DRIVER=$(BUILDDIR)/demo_driver.ihx
 $(MROM1): $(SOUND_DRIVER)
 
 # The Furnace module in the demo is converted into two Z80 asm files
+$(SOUND_DRIVER): $(BUILDDIR)/assets/ngdevkit-eye-catcher.lib
 $(SOUND_DRIVER): $(BUILDDIR)/user_commands.rel
 $(SOUND_DRIVER): $(BUILDDIR)/nss/nss-starship-battle.rel
 $(SOUND_DRIVER): $(BUILDDIR)/nss/instruments-starship-battle.rel

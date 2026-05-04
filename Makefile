@@ -43,7 +43,7 @@ clean:
 	for i in $(EXAMPLES); do $(MAKE) -C $$i clean; done
 
 distclean:
-	-$(MAKE) clean
+	for i in $(EXAMPLES); do $(MAKE) -C $$i distclean; done
 	find . -name '*~' -delete
 	rm -rf config.log config.status configure aclocal.m4 config.mk autom4te.cache
 

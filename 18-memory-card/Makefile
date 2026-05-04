@@ -26,7 +26,7 @@ BUILDDIR=build
 SRCDIRS=assets
 # default build flags, can be overriden per target
 CFLAGS=-I$(BUILDDIR) -fomit-frame-pointer -O2 -g
-LDFLAGS=
+LDFLAGS=-Wl,--defsym,rom_NGH_ID=1338 -Wl,--defsym,rom_eye_catcher_mode=0
 Z80FLAGS=
 Z80LDFLAGS=
 
@@ -36,6 +36,10 @@ include config.mk
 
 # This defines the layout of your game cartridge
 # You can customize it to match your requirements
+# Name of the rom file created
+GAMEROM=18_memory_card
+# Game title, long description
+GAMETITLE=Accessing the memory card
 include rom.mk
 
 # All the generic build targets (68k, Z80, assets, run)
@@ -49,7 +53,7 @@ include emu.mk
 # program ROM: your main program
 # Add your dependencies below to compile your sources into an ELF binary
 # that is used as the content of the program ROM (referenced by symbol PROM1)
-#
+# 
 # Note: build rules (%.c -> %.o -> %.elf) are defined in Makefile.build
 ELF=$(BUILDDIR)/rom.elf
 $(ELF):	$(BUILDDIR)/main.o
@@ -60,7 +64,7 @@ $(PROM1): $(ELF)
 # fixed tiles ROM: all your 8x8 pixel tiles for the fixed layer
 # Add your dependencies below to convert images to fixed tile binary data
 # and pack it into the fixed tile ROM (referenced by symbol SROM1)
-#
+# 
 # By default, this makefile creates a tileset ROM with small and tall
 # latin characters for printing ASCII string, and tiles that are
 # displayed during the attract mode.
@@ -88,7 +92,7 @@ $(CROM2): $(BUILDDIR)/assets/base-crom-logo.c2
 #
 # By default, this makefile uses the empty sound driver provided by ngdevkit
 # Note: build rules (%.s -> %.o -> %.ihx) are defined in Makefile.build
-SOUND_DRIVER=$(NGSHAREDIR)/nullsound_driver.ihx
+SOUND_DRIVER=$(BUILDDIR)/assets/base-sound-driver.ihx
 $(MROM1): $(SOUND_DRIVER)
 
 

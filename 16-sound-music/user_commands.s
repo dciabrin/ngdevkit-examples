@@ -1,5 +1,5 @@
 ;;;
-;;; Copyright (c) 2020-2024 Damien Ciabrini
+;;; Copyright (c) 2020-2026 Damien Ciabrini
 ;;; This file is part of ngdevkit-examples
 ;;;
 ;;; ngdevkit is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@ cmd_jmptable::
         ;; common/reserved sound commands
         jp      snd_command_unused
         jp      snd_command_01_prepare_for_rom_switch
-        jp      snd_command_unused
+        jp      music_ngdevkit_eye_catcher
         jp      snd_command_03_reset_driver
         ;; the following sound commands are up to the user
         jp      stream_stop

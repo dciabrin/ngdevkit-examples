@@ -36,6 +36,10 @@ include config.mk
 
 # This defines the layout of your game cartridge
 # You can customize it to match your requirements
+# Name of the rom file created
+GAMEROM=06_sound_adpcma
+# Game title, long description
+GAMETITLE=ADPCM-A sound FX
 include rom.mk
 
 # All the generic build targets (68k, Z80, assets, run)
@@ -91,7 +95,7 @@ $(CROM2): $(BUILDDIR)/assets/base-crom-logo.c2
 SOUND_DRIVER=$(BUILDDIR)/demo_driver.ihx
 $(MROM1): $(SOUND_DRIVER)
 
-$(SOUND_DRIVER): $(BUILDDIR)/user_commands.rel
+$(SOUND_DRIVER): $(BUILDDIR)/assets/ngdevkit-eye-catcher.lib $(BUILDDIR)/user_commands.rel
 
 
 
