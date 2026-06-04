@@ -1,5 +1,5 @@
 ;;;
-;;; Copyright (c) 2020 Damien Ciabrini
+;;; Copyright (c) 2020-2026 Damien Ciabrini
 ;;; This file is part of ngdevkit-examples
 ;;;
 ;;; ngdevkit is free software: you can redistribute it and/or modify
@@ -25,11 +25,11 @@ cmd_jmptable::
         ;; common/reserved sound commands
         jp      snd_command_unused
         jp      snd_command_01_prepare_for_rom_switch
-        jp      snd_command_unused
+        jp      music_ngdevkit_eye_catcher
         jp      snd_command_03_reset_driver
-        jp      snd_command_04_play_sample_woosh
-        jp      snd_command_05_play_sample_hook
-        jp      snd_command_06_play_sample_break
+        jp      play_sample_woosh
+        jp      play_sample_hook
+        jp      play_sample_break
         init_unused_cmd_jmptable
 
 
@@ -38,17 +38,17 @@ cmd_jmptable::
 ;;; to configure the YM2610 and start playback.
 ;;;
 
-snd_command_04_play_sample_woosh:
+play_sample_woosh:
         ld      ix, #adpcm_a_woosh
         call    snd_adpcm_a_play
         ret
 
-snd_command_05_play_sample_hook:
+play_sample_hook:
         ld      ix, #adpcm_a_hook
         call    snd_adpcm_a_play
         ret
 
-snd_command_06_play_sample_break:
+play_sample_break:
         ld      ix, #adpcm_a_break
         call    snd_adpcm_a_play_exclusive
         ret

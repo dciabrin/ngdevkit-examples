@@ -36,6 +36,10 @@ include config.mk
 
 # This defines the layout of your game cartridge
 # You can customize it to match your requirements
+# Name of the rom file created
+GAMEROM=10_credits
+# Game title, long description
+GAMETITLE=Credits management
 include rom.mk
 
 # All the generic build targets (68k, Z80, assets, run)
@@ -88,7 +92,7 @@ $(CROM2): $(BUILDDIR)/assets/base-crom-logo.c2
 #
 # By default, this makefile uses the empty sound driver provided by ngdevkit
 # Note: build rules (%.s -> %.o -> %.ihx) are defined in Makefile.build
-SOUND_DRIVER=$(NGSHAREDIR)/nullsound_driver.ihx
+SOUND_DRIVER=$(BUILDDIR)/assets/base-sound-driver.ihx
 $(MROM1): $(SOUND_DRIVER)
 
 

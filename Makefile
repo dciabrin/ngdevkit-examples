@@ -36,19 +36,28 @@ EXAMPLES = \
 
 include config.mk
 
-all:
+all: .prebuild
 	for i in $(EXAMPLES); do $(MAKE) -C $$i || exit 1; done
 
 clean:
 	for i in $(EXAMPLES); do $(MAKE) -C $$i clean; done
 
 distclean:
-	-$(MAKE) clean
+	for i in $(EXAMPLES); do $(MAKE) -C $$i distclean; done
 	find . -name '*~' -delete
-	rm -rf config.log config.status configure aclocal.m4 config.mk autom4te.cache
+	rm -rf .prebuild config.log config.status configure aclocal.m4 config.mk 00-template/config.mk autom4te.cache
 
 _examples:
 	@echo $(EXAMPLES)
+
+# build the ngdevkit assets used in these examples only once to speed up things
+.prebuild:
+	@ set -e
+	@ echo "Pre-building ngdevkit assets for all examples"
+	cp config.mk 00-template/config.mk
+	$(MAKE) -C 00-template generate
+	for i in $(EXAMPLES); do rsync -a 00-template/setup/ngdevkit-assets/ $$i/setup/ngdevkit-assets/; done
+	touch $@
 
 # ngdevkit-gngeo config targets
 all: build-gngeo-config

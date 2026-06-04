@@ -32,7 +32,7 @@ packages of ngdevkit and GnGeo with:
     apt-get update
     apt-get install -y ngdevkit ngdevkit-gngeo
     # the remaining packages are only required for the examples
-    apt-get install -y pkg-config autoconf automake zip imagemagick sox libsox-fmt-mp3
+    apt-get install -y pkg-config autoconf automake rsync zip imagemagick sox libsox-fmt-mp3
 
 If you are running a Fedora distribution, pre-built packages are
 available in COPR, and can be installed with the following commands:
@@ -40,7 +40,7 @@ available in COPR, and can be installed with the following commands:
     dnf copr enable dciabrin/ngdevkit
     dnf install ngdevkit ngdevkit-gngeo
     # the remaining packages are only requred for the examples
-    dnf install install pkg-config autoconf zip ImageMagick sox
+    dnf install install pkg-config autoconf rsync zip ImageMagick sox
 
 If you're running on macOS, you can install pre-built [brew][brew]
 packages, available in the ngdevkit tap:
@@ -53,7 +53,7 @@ packages, available in the ngdevkit tap:
     brew tap dciabrin/ngdevkit
     brew install ngdevkit ngdevkit-gngeo
     # the remaining packages are only required for the examples
-    brew install pkg-config autoconf automake zip imagemagick sox
+    brew install pkg-config autoconf automake rsync zip imagemagick sox
 
 If you're running on Windows 10, you can use native pre-built packages
 for the [MSYS2][msys2] environment, available for the ucrt64 subsystem.
@@ -66,7 +66,7 @@ as follows:
     pacboy -Sy
     pacboy -S ngdevkit:u ngdevkit-gngeo:u
     # the remaining packages are only required for the examples
-    pacman -S autoconf automake make zip
+    pacman -S autoconf automake make rsync zip
     pacboy -S imagemagick:u sox:u
 
 If you can't install pre-built binary packages, you can clone the
@@ -91,6 +91,14 @@ Linux:
 
     autoreconf -iv
     ./configure
+
+Note: If you want to use other BIOS instead of the default open source
+ones provided with ngdevkit, you can pass them to configure like so:
+
+    ./configure --with-aes-bios=path --with-mvs-bios=path
+
+You can now build all the examples with a single command:
+
     make
 
 For macOS, make sure you use brew's python3 and gmake:
@@ -113,12 +121,21 @@ can be build with the following commands:
 
 ## Running the compiled examples
 
+The makefiles in this repository allow you to run the ngdevkit
+exanples with either GnGeo or MAME, in AES or MVS mode.
+
 Once you have built the examples, go into a subdirectory to
 test the compiled example and run GnGeo from the makefile:
 
     cd 01-helloworld
-    make gngeo
-    # or run "make gngeo-fullscreen" for a more immersive test
+    make gngeo # this runs the example in AES mode
+    make gngeo-mvs # this runs the example in MVS mode
+    
+Note that MAME has a more precise emulation, especially for sound. If you
+have it installed on your system, you can run the same example with:
+
+    make mame
+    make mame-mvs
 
 GnGeo will automatically enable the GLSL pixel shader if OpenGL
 is available on your system and detected during the configure

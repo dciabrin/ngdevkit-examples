@@ -111,7 +111,7 @@ int main(void) {
     init_sprite();
 
     ng_center_text_tall(22, 0, "TIMER INTERRUPT TEST");
-    ng_center_text(25, 0, "(visible on latest ngdevkit-gngeo)");
+    ng_center_text(25, 0, "React to horizontal blank");
 
     ng_wait_vblank();
 

@@ -21,7 +21,10 @@ config.*
 Makefile.config
 
 # generated build files
-build
+build/
+assets/
+assets/*.wav
+.prebuild
 
 # generated ROM file
 *.zip
@@ -29,8 +32,10 @@ build
 # gngeo log file on MinGW/MSYS2
 gngeo_log.txt
 
-# MAME history files
+# MAME default files
 history/
+nvram/
+cfg/
 
 # Editors tmp
 *~
