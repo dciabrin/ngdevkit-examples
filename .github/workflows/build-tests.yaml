@@ -126,6 +126,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Defender's real-time scan briefly locks freshly written files; with
+      # ninja's parallelism, generated sources are reopened within
+      # milliseconds and the build fails with spurious "cannot open" errors
+      - name: Exclude workspace from Windows Defender
+        shell: powershell
+        run: Add-MpPreference -ExclusionPath "${{ github.workspace }}", "D:\a\_temp\msys64"
+
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
