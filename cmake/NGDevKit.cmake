@@ -133,6 +133,11 @@ endfunction()
 function(ngdevkit_z80_rel outvar source)
   cmake_parse_arguments(ARG "" "OUTPUT" "INCLUDE_DIRS;DEPENDS" ${ARGN})
   _ngdk_dirs()
+  # the assembler runs in the binary directory, resolve sources like
+  # user_commands.s against the example's source directory
+  if(NOT IS_ABSOLUTE ${source})
+    set(source ${CMAKE_CURRENT_SOURCE_DIR}/${source})
+  endif()
   if(NOT ARG_OUTPUT)
     get_filename_component(name ${source} NAME_WE)
     set(ARG_OUTPUT ${name}.rel)

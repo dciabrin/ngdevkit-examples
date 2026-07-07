@@ -31,6 +31,13 @@ set(CMAKE_CXX_COMPILER ${NGDK_M68K_GXX})
 # so probe the compilers by building a static library instead.
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
+# Skip the compiler sanity checks altogether: they archive the test
+# object with ar/ranlib, and the MSYS2 ngdevkit-toolchain currently
+# ships a non-functional m68k-neogeo-elf-ar.exe (the Makefile build
+# never uses ar, so the package issue goes unnoticed there).
+set(CMAKE_C_COMPILER_WORKS TRUE)
+set(CMAKE_CXX_COMPILER_WORKS TRUE)
+
 # All support tools (python tools, sdcc toolchain, emulators...) are host
 # programs found in PATH.
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
