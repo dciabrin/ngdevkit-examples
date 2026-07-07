@@ -67,9 +67,13 @@ function(ngdevkit_elf target)
     LINKER_LANGUAGE C)
   target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/gen)
   target_compile_options(${target} PRIVATE ${NGDEVKIT_CFLAGS} ${ARG_CFLAGS})
-  # NGDEVKIT_LDFLAGS comes from `pkg-config --libs ngdevkit` and carries
-  # -L, -specs and -l flags whose relative order must be preserved
-  target_link_libraries(${target} PRIVATE ${NGDEVKIT_LDFLAGS})
+  # use pkg-config's own decomposition of `--libs ngdevkit` rather than
+  # re-parsing the flags: plain options like the two-token `-specs ngdevkit`
+  # go through target_link_options, which passes them to the driver verbatim
+  # (target_link_libraries would mistake `ngdevkit` for a library name)
+  target_link_directories(${target} PRIVATE ${NGDEVKIT_LIBRARY_DIRS})
+  target_link_options(${target} PRIVATE ${NGDEVKIT_LDFLAGS_OTHER})
+  target_link_libraries(${target} PRIVATE ${NGDEVKIT_LIBRARIES})
   if(ARG_LINK_OPTIONS)
     target_link_options(${target} PRIVATE ${ARG_LINK_OPTIONS})
   endif()
