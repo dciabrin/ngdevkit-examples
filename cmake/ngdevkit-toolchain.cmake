@@ -31,12 +31,16 @@ set(CMAKE_CXX_COMPILER ${NGDK_M68K_GXX})
 # so probe the compilers by building a static library instead.
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-# Skip the compiler sanity checks altogether: they archive the test
-# object with ar/ranlib, and the MSYS2 ngdevkit-toolchain currently
-# ships a non-functional m68k-neogeo-elf-ar.exe (the Makefile build
-# never uses ar, so the package issue goes unnoticed there).
-set(CMAKE_C_COMPILER_WORKS TRUE)
-set(CMAKE_CXX_COMPILER_WORKS TRUE)
+# The MSYS2 ngdevkit-toolchain installs bin/m68k-neogeo-elf-{ar,ranlib}.exe
+# as shell-script wrappers, which only work when spawned through an MSYS
+# shell (as the Makefile build does); native processes like ninja cannot
+# execute them. Prefer the real binaries from the target's bin directory.
+get_filename_component(_ngdk_bindir ${NGDK_M68K_GCC} DIRECTORY)
+get_filename_component(_ngdk_prefix ${_ngdk_bindir} DIRECTORY)
+find_program(CMAKE_AR NAMES ar PATHS ${_ngdk_prefix}/m68k-neogeo-elf/bin NO_DEFAULT_PATH)
+find_program(CMAKE_AR m68k-neogeo-elf-ar REQUIRED)
+find_program(CMAKE_RANLIB NAMES ranlib PATHS ${_ngdk_prefix}/m68k-neogeo-elf/bin NO_DEFAULT_PATH)
+find_program(CMAKE_RANLIB m68k-neogeo-elf-ranlib REQUIRED)
 
 # All support tools (python tools, sdcc toolchain, emulators...) are host
 # programs found in PATH.

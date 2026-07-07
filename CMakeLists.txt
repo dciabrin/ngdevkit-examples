@@ -45,8 +45,17 @@ pkg_get_variable(NGDK_Z80LIBDIR ngdevkit z80libdir)
 
 # --- toolchains and tools ---
 find_program(NGDK_M68KOBJCOPY m68k-neogeo-elf-objcopy REQUIRED)
+# The MSYS2 ngdevkit-toolchain installs the prefixed z80 tools as
+# shell-script wrappers, which only work when spawned through an MSYS
+# shell (as the Makefile build does); native processes like ninja cannot
+# execute them. Prefer the real binaries from the target's bin directory
+# and fall back to the prefixed names elsewhere.
+get_filename_component(_z80prefix ${NGDK_Z80LIBDIR} DIRECTORY)
+find_program(NGDK_Z80SDAS NAMES sdasz80 PATHS ${_z80prefix}/bin NO_DEFAULT_PATH)
 find_program(NGDK_Z80SDAS z80-neogeo-ihx-sdasz80 REQUIRED)
+find_program(NGDK_Z80SDLD NAMES sdldz80 PATHS ${_z80prefix}/bin NO_DEFAULT_PATH)
 find_program(NGDK_Z80SDLD z80-neogeo-ihx-sdldz80 REQUIRED)
+find_program(NGDK_Z80SDOBJCOPY NAMES sdobjcopy PATHS ${_z80prefix}/bin NO_DEFAULT_PATH)
 find_program(NGDK_Z80SDOBJCOPY z80-neogeo-ihx-sdobjcopy REQUIRED)
 
 find_program(NGDK_PYTHON NAMES python3 python REQUIRED)
