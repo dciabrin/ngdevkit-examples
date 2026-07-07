@@ -37,7 +37,7 @@ ngdevkit_elf(04-palette-rom
 )
 
 ngdevkit_cartridge(
-  GAMEROM 03_palette
+  GAMEROM 04_palette
   TITLE   "Palette test"
   ELF     04-palette-rom
   SROM    ${NGDK_BASE_SROM_FIX} ${GRADIENT_FIX}
