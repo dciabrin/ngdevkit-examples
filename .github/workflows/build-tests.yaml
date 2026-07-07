@@ -157,6 +157,7 @@ jobs:
       - name: Dependencies
         run: |
           brew tap dciabrin/ngdevkit
+          brew trust dciabrin/ngdevkit
           brew install automake zip pkg-config
           brew install ngdevkit ngdevkit-gngeo imagemagick sox glew make
 
@@ -173,6 +174,7 @@ jobs:
       - name: Dependencies
         run: |
           brew tap dciabrin/ngdevkit
+          brew trust dciabrin/ngdevkit
           brew install cmake ninja pkg-config
           brew install ngdevkit ngdevkit-gngeo imagemagick sox glew
 
