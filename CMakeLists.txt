@@ -64,8 +64,9 @@ foreach(tool IN ITEMS paltool tiletool adpcmtool vromtool furtool nsstool soundt
   find_program(NGDK_${TOOL} ${tool}.py HINTS ${NGDK_BINDIR} REQUIRED)
 endforeach()
 # On Windows the python tools cannot be executed via their shebang;
-# launch them through the python interpreter there.
-if(WIN32)
+# launch them through the python interpreter there. Note: WIN32
+# describes the target (Generic here), test the host system instead.
+if(CMAKE_HOST_WIN32)
   set(NGDK_TOOL_LAUNCHER ${NGDK_PYTHON})
 else()
   set(NGDK_TOOL_LAUNCHER "")
