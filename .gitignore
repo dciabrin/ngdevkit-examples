@@ -26,6 +26,10 @@ assets/
 assets/*.wav
 .prebuild
 
+# cmake build directories and local presets
+build-cmake*/
+CMakeUserPresets.json
+
 # generated ROM file
 *.zip
 

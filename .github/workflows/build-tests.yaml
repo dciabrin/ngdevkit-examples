@@ -44,6 +44,43 @@ jobs:
       - name: Build examples
         run: ./.github/scripts/build.sh
 
+  linux-cmake:
+    name: "Linux CMake build"
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Launchpad PPA
+        id: launchpad_ppa
+        run: |
+          sudo add-apt-repository -y ppa:dciabrin/ngdevkit
+          sudo apt-get update -y
+          toolchain_version=$(sudo apt-cache policy ngdevkit-toolchain | awk '/Candidate:/ {print $2}')
+          arch=$(dpkg --print-architecture)
+          echo "toolchain_deb=ngdevkit-toolchain_${toolchain_version}_${arch}.deb" >> "$GITHUB_OUTPUT"
+
+      - name: Cache ngdevkit-toolchain package
+        uses: actions/cache@v5
+        with:
+          path: /tmp/${{ steps.launchpad_ppa.outputs.toolchain_deb }}
+          key: ${{ steps.launchpad_ppa.outputs.toolchain_deb }}
+
+      - name: Prepare cached dependency
+        run: |
+          if [ ! -f /tmp/${{ steps.launchpad_ppa.outputs.toolchain_deb }} ]; then
+              cd /tmp && sudo apt-get download ngdevkit-toolchain
+          fi
+          sudo cp /tmp/${{ steps.launchpad_ppa.outputs.toolchain_deb }} /var/cache/apt/archives
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y ngdevkit ngdevkit-gngeo
+          sudo apt-get install -y pkg-config cmake ninja-build imagemagick sox libsox-fmt-mp3
+
+      - name: Build examples
+        run: ./.github/scripts/build-cmake.sh
+
   win:
     name: "Windows native MSYS2 build"
     runs-on: windows-latest
@@ -77,6 +114,39 @@ jobs:
       - name: Build examples
         run: ./.github/scripts/build.sh
 
+  win-cmake:
+    name: "Windows native MSYS2 CMake build"
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install:
+            git zip pactoys
+            mingw-w64-ucrt-x86_64-pkg-config
+            mingw-w64-ucrt-x86_64-python
+            mingw-w64-ucrt-x86_64-python-pillow
+            mingw-w64-ucrt-x86_64-python-ruamel-yaml
+
+      - name: Install ngdevkit dependencies
+        run: |
+          echo -e "[ngdevkit]\nSigLevel = Optional TrustAll\nServer = https://dciabrin.net/msys2-ngdevkit/\$arch" >> /etc/pacman.conf
+          pacman -Sy
+          pacboy -S --noconfirm ngdevkit:u ngdevkit-gngeo:u toolchain:u zlib:u sox:u imagemagick:u cmake:u ninja:u
+
+      - name: Build examples
+        run: ./.github/scripts/build-cmake.sh
+
   macos:
     name: "macOS build"
     runs-on: macos-15
@@ -92,3 +162,21 @@ jobs:
 
       - name: Build examples
         run: ./.github/scripts/build.sh
+
+  macos-cmake:
+    name: "macOS CMake build"
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependencies
+        run: |
+          brew tap dciabrin/ngdevkit
+          brew install cmake ninja pkg-config
+          brew install ngdevkit ngdevkit-gngeo imagemagick sox glew
+
+      - name: Build examples
+        run: |
+          export PATH=$HOMEBREW_PREFIX/opt/python3/bin:$PATH
+          ./.github/scripts/build-cmake.sh
