@@ -249,7 +249,11 @@ AC_SUBST([GNGEO_SHADER_PATH])
 
 if test x"$GNGEO_GLSL" = x"yes"; then
   AC_MSG_CHECKING([ngdevkit-gngeo GLSL shader path])
-  gngeo_shader_path=$(cygpath -w `basename $GNGEO_DATA`)
+  gngeo_shader_path=`dirname $GNGEO_DATA`
+  if test x"$ENABLE_MSYS2" = x"yes"; then
+    gngeo_shader_path=`cygpath -w "$gngeo_shader_path"`
+  fi
+
   dnl MinGW generates self-contained builds, so all paths are relative
   if test -n "$gngeo_shader_path" && test -d "${GNGEO_ABS_PREFIX}$gngeo_shader_path"; then
     AC_MSG_RESULT([$gngeo_shader_path])
