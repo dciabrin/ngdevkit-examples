@@ -37,7 +37,7 @@ include config.mk
 # This defines the layout of your game cartridge
 # You can customize it to match your requirements
 # Name of the rom file created
-GAMEROM=03_palette
+GAMEROM=04_palette
 # Game title, long description
 GAMETITLE=Palette test
 include rom.mk
