@@ -192,6 +192,51 @@ $(VROM4): | $(ROM)
 	echo $^ | xargs -r cat > $@ && $(TRUNCATE) -s $(VROMSIZE) $@
 endif
 
+
+# -----------------------------------
+# Build rules for sound driver commands (Z80, m68k)
+
+# This is the default name of generated files for sound driver
+# command. This can be overriden in your project's makefile
+# before including this build.mk makefile
+
+Z80_SAMPLES_IN_VROM?=$(BUILDDIR)/samples.inc
+Z80_SOUND_COMMANDS?=$(BUILDDIR)/snd_commands.inc
+SOUND_COMMANDS?=$(BUILDDIR)/snd_commands.h
+
+ifdef VROMTEMPLATE
+# The number of VROMs must be known to vromtool
+$(Z80_SAMPLES_IN_VROM): | $(dir $(Z80_SAMPLES_IN_VROM))
+	$(VROMTOOL) --asm -s $(VROMSIZE) $^ -o $(VROMTEMPLATE) -m $@
+else
+$(Z80_SAMPLES_IN_VROM): | $(dir $(Z80_SAMPLES_IN_VROM))
+	$(VROMTOOL) --asm -s $(VROMSIZE) $^ -o $(VROM1) -m $@
+endif
+$(Z80_SOUND_COMMANDS): | $(dir $(Z80_SOUND_COMMANDS))
+	$(SOUNDTOOL) -z -s $^ -o $@
+
+$(SOUND_COMMANDS): | $(dir $(SOUND_COMMANDS))
+	$(SOUNDTOOL) -c -s $^ -o $@
+
+
+# -----------------------------------
+# Build rules for NSS-generated content (music)
+
+# Every nss generated content goes into a specific subdirectory
+# This can be overriden in your project's makefile before including
+# this build.mk makefile
+BUILDDIR_NSS?=$(BUILDDIR)/nss
+
+$(BUILDDIR_NSS)/nss-%.s: | $(BUILDDIR_NSS)
+	$(NSSTOOL) $(NSS_FLAGS) -z $< -n $(call asm_label,$(notdir $(@))) -o $@
+
+$(BUILDDIR_NSS)/instruments-%.s: | $(BUILDDIR_NSS)
+	$(FURTOOL) $(NSS_FLAGS) $< --instruments -n $(call asm_label,$(notdir $(@))) -m $(Z80_SAMPLES_IN_VROM) -o $@
+
+$(BUILDDIR_NSS):
+	mkdir -p $@ && touch $@
+
+
 # -----------------------------------
 # Build rules for setting up a BIOS ROM for the generated game ROM
 # note: by default, use nullbios to avoid any external dependency
