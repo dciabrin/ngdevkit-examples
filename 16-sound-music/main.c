@@ -131,6 +131,8 @@ void display_selection(selection_t *c, bool active) {
         case 2:
             descpal=3;
             break;
+        default:
+            descpal=0;
         }
     }
 
