@@ -119,6 +119,38 @@ can be build with the following commands:
     make
 
 
+### Compiling examples with CMake
+
+Alternatively, the examples can be built with CMake instead of
+autoconf and make. Both build systems coexist in this repository and
+are fully independent; use whichever you prefer. The prerequisites
+are the same as above, except that autoconf, automake, make and rsync
+are replaced by cmake (and optionally ninja):
+
+    # import the GLSL CRT shader for GnGeo
+    git submodule update --init --recursive
+    # configure and build all the examples
+    cmake -B build
+    cmake --build build
+
+If you want to use other BIOS instead of the default open source ones
+provided with ngdevkit, you can pass them at configure time:
+
+    cmake -B build -DAES_BIOS=path -DMVS_BIOS=path
+
+Each example can be run in GnGeo or MAME, in AES or MVS mode, via
+dedicated targets:
+
+    cmake --build build --target 01-helloworld-gngeo      # AES mode
+    cmake --build build --target 01-helloworld-gngeo-mvs  # MVS mode
+    cmake --build build --target 01-helloworld-mame
+    cmake --build build --target 01-helloworld-mame-mvs
+
+The build rules live in [`cmake/NGDevKit.cmake`](cmake/NGDevKit.cmake),
+and every example has a small `CMakeLists.txt` that mirrors its
+`Makefile`.
+
+
 ## Running the compiled examples
 
 The makefiles in this repository allow you to run the ngdevkit
