@@ -9,7 +9,7 @@ on:
 jobs:
   linux:
     name: "Linux build"
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,8 +19,8 @@ jobs:
         run: |
           sudo add-apt-repository -y ppa:dciabrin/ngdevkit
           sudo apt-get update -y
-          toolchain_version=$(sudo apt-cache policy ngdevkit-toolchain | awk '/Candidate:/ {print $2}')
-          arch=$(dpkg --print-architecture)
+          toolchain_version=$(sudo apt-cache policy ngdevkit-toolchain | awk '/Candidate:/ {print $2; exit}')
+          arch=$(sudo apt-cache policy ngdevkit-toolchain | awk '/Packages$/ {print $(NF-1); exit}')
           echo "toolchain_deb=ngdevkit-toolchain_${toolchain_version}_${arch}.deb" >> "$GITHUB_OUTPUT"
 
       - name: Cache ngdevkit-toolchain package
@@ -79,7 +79,7 @@ jobs:
 
   macos:
     name: "macOS build"
-    runs-on: macos-15
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v4
