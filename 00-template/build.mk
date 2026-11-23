@@ -131,7 +131,7 @@ $(BUILDDIR)/%.rel: %.s
 	$(Z80SDAS) -g -l -p -u -I$(NGZ80INCLUDEDIR)/nullsound -I$(BUILDDIR) -o $@ $<
 
 %.ihx:
-	$(Z80SDLD) -b DATA=0xf800 -i $@ $(NGZ80LIBDIR)/nullsound.lib $^
+	$(Z80SDLD) -b DATA=0xf800 -m -w -i $@ $(NGZ80LIBDIR)/nullsound.lib $^ || (rc=$$? && rm -f "$@" && exit $$rc)
 
 $(MROM1): | $(ROM)
 	$(Z80SDOBJCOPY) -I ihex -O binary $< $@ --pad-to $(MROMSIZE)
