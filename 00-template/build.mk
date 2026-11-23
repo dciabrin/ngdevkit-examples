@@ -207,10 +207,10 @@ SOUND_COMMANDS?=$(BUILDDIR)/snd_commands.h
 ifdef VROMTEMPLATE
 # The number of VROMs must be known to vromtool
 $(Z80_SAMPLES_IN_VROM): | $(dir $(Z80_SAMPLES_IN_VROM))
-	$(VROMTOOL) --asm -s $(VROMSIZE) $^ -o $(VROMTEMPLATE) -m $@
+	$(VROMTOOL) --asm -s $(VROMSIZE) $(filter-out %.fur, $^) -o $(VROMTEMPLATE) -m $@
 else
 $(Z80_SAMPLES_IN_VROM): | $(dir $(Z80_SAMPLES_IN_VROM))
-	$(VROMTOOL) --asm -s $(VROMSIZE) $^ -o $(VROM1) -m $@
+	$(VROMTOOL) --asm -s $(VROMSIZE) $(filter-out %.fur, $^) -o $(VROM1) -m $@
 endif
 $(Z80_SOUND_COMMANDS): | $(dir $(Z80_SOUND_COMMANDS))
 	$(SOUNDTOOL) -z -s $^ -o $@
